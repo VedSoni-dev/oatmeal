@@ -104,21 +104,26 @@ coding agent doesn't need to stay open for any of this to work day to day.
 node scripts/install-autostart.mjs
 ```
 
-Registers the recorder as a real OS service (Windows Scheduled Task, macOS
-LaunchAgent, Linux `systemd --user`) that starts at every login and keeps running.
-Your agent runs this **once**; after that, closing your terminal or Claude Code
-doesn't stop it.
+Registers the recorder as a real background service — a Startup-folder entry on
+Windows, a LaunchAgent on macOS, `systemd --user` on Linux — with **no admin rights
+and no permission prompts**. Starts at every login, keeps running. Your agent runs
+this **once**; after that, closing your terminal or Claude Code doesn't stop it.
 
 ### Calendar automation
+
+If your coding agent has (or can add) a Google/Outlook Calendar connector, just ask
+it to wire your calendar into Oatmeal — one click of OAuth, nothing to paste.
+
+No calendar connector? One URL, no OAuth:
 
 ```bash
 cp oatmeal.config.example.json oatmeal.config.json
 # paste your calendar's ICS feed URL (Google Calendar → Settings → your calendar
-# → "Secret address in iCal format" — no OAuth needed)
+# → "Secret address in iCal format")
 node scripts/install-autostart.mjs   # re-run: also installs the calendar watcher
 ```
 
-From then on, with zero agent involvement: a standalone script polls your calendar
+From then on, with zero agent involvement: a standalone script checks your calendar
 every 5 minutes and opens the recorder in your browser ~7 minutes before each
 meeting. You just hit Record. Your agent's only jobs are the one-time install and
 writing up notes afterward.

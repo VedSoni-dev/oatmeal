@@ -96,19 +96,26 @@ mentions sharing with teammates.
 
 ## 6. Calendar automation — runs standalone, not through you
 
-This must also work without a coding-agent session open. Don't build this as
-something you do each morning — install the standalone watcher once:
+This must also work without a coding-agent session open. Install the standalone
+watcher once; after that no agent involvement is needed day to day.
 
-1. Ask the user for their calendar's ICS feed URL (Google Calendar: Settings →
-   their calendar → "Secret address in iCal format"; Outlook has an equivalent
-   "ICS" link). No OAuth needed.
-2. `cp oatmeal.config.example.json oatmeal.config.json` and put the URL in `icsUrl`.
-   Adjust `minutesBeforeMeeting` if they want more/less lead time (default 7).
-3. Re-run `node scripts/install-autostart.mjs` — it detects `oatmeal.config.json`
-   and also registers `scripts/calendar-watch.mjs` as a background service.
-4. From then on, with no agent involved: the watcher polls the calendar every 5
-   minutes and opens http://localhost:4123 in the default browser ~7 minutes before
-   each meeting, so the user just has to hit Record.
+**Getting the calendar URL — prefer the zero-technical-steps path:**
+
+1. If you (the agent) have a Google Calendar / Outlook Calendar MCP connector
+   available or connectable (check your tool list, or look one up), use it to fetch
+   the user's calendar directly instead of the ICS method below — that's one click
+   of OAuth for the user, no copy-pasting anything. Wire that connector's output
+   into the same "open recorder before each meeting" behavior.
+2. Otherwise, fall back to the ICS feed (still no OAuth, just one URL to paste):
+   ask the user for their calendar's ICS link (Google Calendar: Settings → their
+   calendar → "Secret address in iCal format"; Outlook has an equivalent "ICS"
+   link), then:
+   - `cp oatmeal.config.example.json oatmeal.config.json` and put the URL in `icsUrl`.
+   - Re-run `node scripts/install-autostart.mjs` — it detects `oatmeal.config.json`
+     and also registers `scripts/calendar-watch.mjs` as a background service.
+3. From then on, with no agent involved: the watcher polls every 5 minutes and opens
+   http://localhost:4123 in the default browser ~7 minutes before each meeting, so
+   the user just has to hit Record.
 
 You (the agent) are only needed for the one-time install and for post-meeting
 write-ups — never for the day-to-day polling or launching.
