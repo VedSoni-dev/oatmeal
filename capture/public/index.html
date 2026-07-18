@@ -1,0 +1,94 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>🥣 Oatmeal — meeting recorder</title>
+  <style>
+    :root { color-scheme: light dark; }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0; font-family: Inter, system-ui, sans-serif;
+      background: #faf7f2; color: #43301f;
+      display: flex; flex-direction: column; align-items: center;
+      min-height: 100vh; padding: 2.5rem 1rem;
+    }
+    @media (prefers-color-scheme: dark) {
+      body { background: #1c1713; color: #e6d8c3; }
+      .panel, input, .step, .meeting { background: #262019 !important; border-color: #3a3128 !important; color: #e6d8c3; }
+      .seg { color: #d6bd9c !important; }
+      .muted { color: #8a7a68 !important; }
+    }
+    h1 { font-size: 1.5rem; margin: 0 0 .25rem; }
+    .sub { font-size: .85rem; opacity: .65; margin-bottom: 1.75rem; text-align: center; max-width: 460px; }
+    .panel {
+      width: 100%; max-width: 680px; background: #fff;
+      border: 1px solid #e6d8c3; border-radius: 16px; padding: 1.25rem;
+      margin-bottom: 1rem;
+    }
+    .steps { display: grid; grid-template-columns: repeat(3, 1fr); gap: .6rem; width: 100%; max-width: 680px; margin-bottom: 1rem; }
+    .step {
+      background: #fff; border: 1px solid #e6d8c3; border-radius: 12px;
+      padding: .7rem .8rem; font-size: .78rem; line-height: 1.45;
+    }
+    .step b { display: block; font-size: .82rem; margin-bottom: .15rem; }
+    @media (max-width: 560px) { .steps { grid-template-columns: 1fr; } }
+    input {
+      width: 100%; border: 1px solid #e6d8c3; border-radius: 9px;
+      padding: .6rem .75rem; font-size: .95rem; margin-bottom: .75rem; outline: none;
+      background: #fff;
+    }
+    input:focus { border-color: #b48455; }
+    button.rec {
+      border: 0; border-radius: 9px; padding: .65rem 1.3rem; font-size: .95rem;
+      font-weight: 600; cursor: pointer; color: #fff; background: #a06f49;
+    }
+    button.rec:disabled { opacity: .5; cursor: default; }
+    button.rec.stop { background: #c0392b; }
+    #status { font-size: .82rem; margin: .8rem 0 .4rem; opacity: .8; min-height: 1.2em; line-height: 1.5; }
+    #transcript { margin-top: .4rem; max-height: 40vh; overflow-y: auto; font-size: .92rem; line-height: 1.55; }
+    .seg { margin: 0 0 .6rem; color: #5a3d30; }
+    .interim { opacity: .45; font-style: italic; }
+    h2 { font-size: .8rem; text-transform: uppercase; letter-spacing: .05em; opacity: .55; margin: .25rem 0 .6rem; }
+    .meeting {
+      display: block; background: #fff; border: 1px solid #e6d8c3; border-radius: 10px;
+      padding: .5rem .75rem; font-size: .82rem; margin-bottom: .4rem;
+      font-family: ui-monospace, monospace; word-break: break-all;
+    }
+    .muted { font-size: .78rem; color: #85593e; opacity: .8; }
+    .foot { margin-top: auto; padding-top: 1.5rem; font-size: .75rem; opacity: .5; text-align: center; }
+    .foot a { color: inherit; }
+  </style>
+</head>
+<body>
+  <h1>🥣 Oatmeal</h1>
+  <div class="sub">
+    Local meeting recorder. Audio is transcribed by Whisper <b>on this machine</b> and
+    never leaves it. Your coding agent turns transcripts into notes.
+  </div>
+
+  <div class="steps">
+    <div class="step"><b>1 · Record</b> Title your meeting, hit Record. First run downloads the Whisper model once (~80 MB), then it's offline.</div>
+    <div class="step"><b>2 · Share audio</b> Pick <b>Entire screen</b> and CHECK <b>"share system audio"</b> (or the meeting tab + tab audio). A window share has no audio.</div>
+    <div class="step"><b>3 · Get notes</b> After the meeting, tell your coding agent: <i>"write up my meeting"</i>. It reads the transcript and commits notes.</div>
+  </div>
+
+  <div class="panel">
+    <input id="title" placeholder="Meeting title (e.g. Standup, Acme discovery call)" />
+    <button id="btn" class="rec">● Record</button>
+    <div id="status">Ready.</div>
+    <div id="transcript"></div>
+  </div>
+
+  <div class="panel">
+    <h2>Recent meetings</h2>
+    <div id="meetings"><span class="muted">Loading…</span></div>
+  </div>
+
+  <div class="foot">
+    open source · MIT · <a href="https://github.com/VedSoni-dev/oatmeal">github.com/VedSoni-dev/oatmeal</a>
+  </div>
+
+  <script type="module" src="/app.js"></script>
+</body>
+</html>

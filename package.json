@@ -1,0 +1,32 @@
+{
+  "name": "oatmeal",
+  "version": "1.0.0",
+  "description": "Your coding agent is your meeting notetaker. Local Whisper transcription, agent-written notes, git as the team knowledge base. No cloud, no keys, no bots.",
+  "author": "Vedant Soni",
+  "license": "MIT",
+  "type": "module",
+  "homepage": "https://github.com/VedSoni-dev/oatmeal",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/VedSoni-dev/oatmeal.git"
+  },
+  "keywords": [
+    "meeting-notes",
+    "whisper",
+    "transcription",
+    "claude-code",
+    "coding-agent",
+    "local-first",
+    "granola-alternative",
+    "mcp"
+  ],
+  "scripts": {
+    "start": "node capture/server.mjs",
+    "mcp": "node scripts/mcp-server.mjs"
+  },
+  "dependencies": {
+    "@huggingface/transformers": "^3.8.1",
+    "@modelcontextprotocol/sdk": "^1.13.1",
+    "zod": "^3.24.1"
+  }
+}
