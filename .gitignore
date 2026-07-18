@@ -3,3 +3,5 @@ node_modules/
 .DS_Store
 meetings/*
 !meetings/.gitkeep
+oatmeal.config.json
+.oatmeal-notified.json

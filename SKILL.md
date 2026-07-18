@@ -14,14 +14,23 @@ Oatmeal is not an app. It is a local recorder plus **you**. The recorder produce
 transcripts; every intelligent step — notes, search, sharing, scheduling — is yours.
 Follow this file exactly; it is the product spec.
 
-## 1. Setup (first run)
+## 1. Setup (first run) — make it survive without you
+
+The recorder must NOT depend on a coding-agent session staying open. Install it as a
+background service once, so it's always running — logins, reboots, agent closed,
+doesn't matter.
 
 1. `npm install` in this repo.
-2. Start the recorder in the background: `node capture/server.mjs` (port 4123).
-   Keep it running for the whole session; restart it if it dies.
+2. Run `node scripts/install-autostart.mjs`. This registers the recorder as an
+   OS-level background service (Windows Scheduled Task / macOS LaunchAgent / Linux
+   systemd --user service), starts it immediately, and makes it auto-start at every
+   login from now on. You do not need to run `npm start` manually, and you do not
+   need to stay open for the recorder to work tomorrow.
 3. Open http://localhost:4123 in the user's default browser
    (Windows: `start http://localhost:4123`, macOS: `open`, Linux: `xdg-open`).
 4. Tell the user, in one short message:
+   - The recorder now runs in the background permanently — bookmark
+     http://localhost:4123, no need to ask an agent to start it again.
    - Hit **Record** when a meeting starts.
    - In the share picker choose **Entire screen** and CHECK **"share system audio"**
      (or the meeting's browser tab + "also share tab audio").
@@ -29,6 +38,8 @@ Follow this file exactly; it is the product spec.
    - First record downloads the Whisper model once (~80 MB), then it's offline forever.
 5. If the repo has no git identity configured (`git config user.email` empty), ask the
    user for name + email and set them locally, so knowledge-base commits work.
+
+To remove the background service: `node scripts/install-autostart.mjs --uninstall`.
 
 ## 2. During and after a meeting
 
@@ -83,17 +94,24 @@ Sharing = git. No accounts, no sync server:
 Offer to run this setup end-to-end (create repo, push, configure) when the user
 mentions sharing with teammates.
 
-## 6. Calendar automation (only if a calendar connector/MCP is available)
+## 6. Calendar automation — runs standalone, not through you
 
-- **Each morning** (or when the user starts their day / says "check my calendar"):
-  list today's meetings and tell the user what's coming.
-- **Before each meeting** (5-10 minutes ahead): make sure the recorder is running,
-  open http://localhost:4123 in their browser, and remind them to hit Record with
-  system audio enabled.
-- If your environment supports scheduled/background tasks (e.g. Claude Code scheduled
-  tasks, cron, Windows Task Scheduler), offer ONCE to automate the morning check and
-  pre-meeting launches; set it up only with the user's explicit yes.
-- **After a meeting ends**: offer to write it up (section 2).
+This must also work without a coding-agent session open. Don't build this as
+something you do each morning — install the standalone watcher once:
+
+1. Ask the user for their calendar's ICS feed URL (Google Calendar: Settings →
+   their calendar → "Secret address in iCal format"; Outlook has an equivalent
+   "ICS" link). No OAuth needed.
+2. `cp oatmeal.config.example.json oatmeal.config.json` and put the URL in `icsUrl`.
+   Adjust `minutesBeforeMeeting` if they want more/less lead time (default 7).
+3. Re-run `node scripts/install-autostart.mjs` — it detects `oatmeal.config.json`
+   and also registers `scripts/calendar-watch.mjs` as a background service.
+4. From then on, with no agent involved: the watcher polls the calendar every 5
+   minutes and opens http://localhost:4123 in the default browser ~7 minutes before
+   each meeting, so the user just has to hit Record.
+
+You (the agent) are only needed for the one-time install and for post-meeting
+write-ups — never for the day-to-day polling or launching.
 
 ## 7. Privacy lines (hard rules)
 

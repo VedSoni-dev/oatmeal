@@ -95,15 +95,33 @@ Transcripts land in `meetings/` as plain Markdown. Bring any tool you like.
 Access control is your git host's access control. History is the git log. Deleting
 a note is a commit. Compliance export is `git archive`. It's boring — that's the point.
 
-## Calendar automation
+## Runs without the agent open
 
-Give your agent a calendar connector (e.g. Google Calendar MCP) and the skill turns
-on the full Granola experience:
+The recorder and calendar watcher are **background services**, not agent tasks — your
+coding agent doesn't need to stay open for any of this to work day to day.
 
-- **Morning brief** — your agent checks today's meetings and tells you what's coming.
-- **Pre-meeting launch** — 5-10 minutes before each meeting it opens the recorder in
-  your browser so you just hit Record.
-- **Post-meeting** — it offers to write up the notes and push them.
+```bash
+node scripts/install-autostart.mjs
+```
+
+Registers the recorder as a real OS service (Windows Scheduled Task, macOS
+LaunchAgent, Linux `systemd --user`) that starts at every login and keeps running.
+Your agent runs this **once**; after that, closing your terminal or Claude Code
+doesn't stop it.
+
+### Calendar automation
+
+```bash
+cp oatmeal.config.example.json oatmeal.config.json
+# paste your calendar's ICS feed URL (Google Calendar → Settings → your calendar
+# → "Secret address in iCal format" — no OAuth needed)
+node scripts/install-autostart.mjs   # re-run: also installs the calendar watcher
+```
+
+From then on, with zero agent involvement: a standalone script polls your calendar
+every 5 minutes and opens the recorder in your browser ~7 minutes before each
+meeting. You just hit Record. Your agent's only jobs are the one-time install and
+writing up notes afterward.
 
 ## What's in the repo
 
@@ -113,6 +131,8 @@ on the full Granola experience:
 | [`capture/`](capture/) | Zero-dependency local server + recorder page (mic + system loopback, in-browser Whisper, WebGPU) |
 | [`meetings/`](meetings/) | Your transcripts + notes. Plain Markdown. Yours. |
 | [`scripts/mcp-server.mjs`](scripts/mcp-server.mjs) | Optional MCP server — expose meetings to any MCP client |
+| [`scripts/install-autostart.mjs`](scripts/install-autostart.mjs) | Registers the recorder (+ calendar watcher) as a background OS service |
+| [`scripts/calendar-watch.mjs`](scripts/calendar-watch.mjs) | Standalone ICS calendar poller — opens the recorder before meetings, no agent needed |
 | [`.claude/skills/`](.claude/skills/) | Auto-discovery so Claude Code picks up the skill on clone |
 
 ## Privacy
