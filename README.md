@@ -40,8 +40,9 @@ you, in a meeting ──► localhost:4123 recorder
 ```
 
 No bot joins your call. The recorder listens to *your* machine — your mic plus the
-system audio you already hear — and Whisper transcribes it locally in your browser.
-Your agent does everything intelligent with the result.
+system audio you already hear — captured as two separate tracks, transcribed
+separately, and tagged **You** / **Room** in the transcript. Your agent does
+everything intelligent with the result.
 
 ## Quickstart
 
@@ -161,7 +162,7 @@ whole thing.
 - Nicer recorder UI (better styling, visual feedback, meeting timer)
 - Smarter meeting-title detection (from calendar or first few words)
 - Calendar connector recipes (Google, Outlook, Slack integration guides)
-- **Speaker diarization** (who's talking — requires Pyannote or similar; transcripts currently have no speaker labels)
+- **Full multi-person diarization** (mic vs system audio are already tagged "You"/"Room" — telling apart two+ people on the *other* end of the call would need Pyannote or similar)
 - Better error messages (when Whisper fails, when git push fails, etc.)
 
 **Not in scope:** cloud sync, accounts, compliance features (fine-grained audit logs), multi-language models beyond Whisper's baseline. Those belong in derivatives, not core.

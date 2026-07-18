@@ -79,11 +79,16 @@ const server = createServer(async (req, res) => {
     }
 
     if (req.method === 'POST' && path === '/api/session/segment') {
-      const { id, text } = await json(req)
+      const { id, text, speaker } = await json(req)
       const s = sessions.get(id)
       if (!s) return send(res, 404, { error: 'unknown session' })
       if (text && text.trim()) {
-        await appendFile(s.file, text.trim() + '\n\n')
+        // speaker attribution: "you" (mic) vs "room" (system audio) are captured
+        // as separate tracks and transcribed separately — not full multi-person
+        // diarization, but correctly separates what you said from what the
+        // meeting said.
+        const label = speaker === 'you' ? '**You:** ' : speaker === 'room' ? '**Room:** ' : ''
+        await appendFile(s.file, label + text.trim() + '\n\n')
         s.segments++
       }
       return send(res, 200, { ok: true, segments: s.segments })

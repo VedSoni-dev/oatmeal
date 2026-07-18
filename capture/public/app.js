@@ -1,6 +1,12 @@
 // Oatmeal recorder: mic + system audio -> local Whisper -> transcript segments
 // POSTed to the capture server, which appends them to a markdown file your
 // coding agent reads. All processing is local.
+//
+// Speaker attribution: mic and system audio are captured as SEPARATE streams
+// (not mixed), each transcribed independently and tagged "You" / "Room". This
+// is not full multi-person diarization (can't tell apart two people on the
+// other end) but correctly separates what you said from what the meeting said
+// — real, useful, no extra dependencies.
 
 const btn = document.getElementById('btn')
 const titleInput = document.getElementById('title')
@@ -13,14 +19,19 @@ const SILENCE = /^[\s]*[[(][^)\]]*[)\]][\s]*$/
 
 let recording = false
 let session = null
-let ctx, processor, mixer, streams = []
+let ctx, streams = []
 let asr = null
-let buffers = [], buffered = 0
 let pump = Promise.resolve()
+
+// Two independent capture lanes, each with its own buffer + processor node.
+const lanes = {
+  you: { processor: null, source: null, buffers: [], buffered: 0, active: false },
+  room: { processor: null, source: null, buffers: [], buffered: 0, active: false }
+}
 
 function status(msg) { statusEl.textContent = msg }
 
-function addSegment(text, interim = false) {
+function addSegment(text, speaker, interim = false) {
   if (interim) {
     let el = document.getElementById('interim')
     if (!text) { el?.remove(); return }
@@ -35,7 +46,10 @@ function addSegment(text, interim = false) {
     document.getElementById('interim')?.remove()
     const p = document.createElement('p')
     p.className = 'seg'
-    p.textContent = text
+    const tag = document.createElement('b')
+    tag.textContent = (speaker === 'you' ? 'You: ' : 'Room: ')
+    p.appendChild(tag)
+    p.appendChild(document.createTextNode(text))
     transcriptEl.appendChild(p)
   }
   transcriptEl.scrollTop = transcriptEl.scrollHeight
@@ -68,21 +82,54 @@ async function loadWhisper() {
   return asr
 }
 
+function attachLane(laneKey, mediaStream) {
+  const lane = lanes[laneKey]
+  lane.source = ctx.createMediaStreamSource(mediaStream)
+  lane.processor = ctx.createScriptProcessor(4096, 1, 1)
+  lane.source.connect(lane.processor)
+  const silent = ctx.createGain()
+  silent.gain.value = 0
+  lane.processor.connect(silent)
+  silent.connect(ctx.destination)
+  lane.active = true
+
+  lane.processor.onaudioprocess = (e) => {
+    if (!recording) return
+    const input = e.inputBuffer.getChannelData(0)
+    lane.buffers.push(new Float32Array(input))
+    lane.buffered += input.length
+    if (lane.buffered >= ctx.sampleRate * CHUNK_SECONDS) schedule(() => processLane(laneKey))
+  }
+}
+
+function takeWindow(lane, size) {
+  const out = new Float32Array(size)
+  let filled = 0
+  while (filled < size && lane.buffers.length > 0) {
+    const head = lane.buffers[0]
+    const need = size - filled
+    if (head.length <= need) { out.set(head, filled); filled += head.length; lane.buffers.shift() }
+    else { out.set(head.subarray(0, need), filled); lane.buffers[0] = head.subarray(need); filled += need }
+  }
+  lane.buffered -= size
+  return out
+}
+
 async function startCapture() {
   ctx = new AudioContext({ sampleRate: 16000 })
   await ctx.resume()
-  mixer = ctx.createGain()
 
   const mic = await navigator.mediaDevices.getUserMedia({
     audio: { echoCancellation: true, noiseSuppression: true, autoGainControl: true }
   })
   streams.push(mic)
-  ctx.createMediaStreamSource(mic).connect(mixer)
+  attachLane('you', mic)
 
   let sysActive = false
   try {
-    // Chrome: share a screen/tab WITH audio -> we get system loopback. Video is
-    // required by the API; we stop the track immediately.
+    // Chrome: share a screen/tab WITH audio -> we get system loopback, kept as
+    // its own stream (never mixed with mic) so it can be transcribed and
+    // labeled separately as "Room".
     const sys = await navigator.mediaDevices.getDisplayMedia({
       video: true,
       audio: { echoCancellation: false },
@@ -92,53 +139,29 @@ async function startCapture() {
     sys.getVideoTracks().forEach((t) => t.stop())
     if (sys.getAudioTracks().length > 0) {
       streams.push(sys)
-      ctx.createMediaStreamSource(sys).connect(mixer)
+      attachLane('room', sys)
       sysActive = true
     }
   } catch { /* mic-only fallback */ }
 
-  processor = ctx.createScriptProcessor(4096, 1, 1)
-  mixer.connect(processor)
-  const silent = ctx.createGain()
-  silent.gain.value = 0
-  processor.connect(silent)
-  silent.connect(ctx.destination)
-
-  processor.onaudioprocess = (e) => {
-    if (!recording) return
-    const input = e.inputBuffer.getChannelData(0)
-    buffers.push(new Float32Array(input))
-    buffered += input.length
-    if (buffered >= ctx.sampleRate * CHUNK_SECONDS) schedule(processReady)
-  }
   return sysActive
 }
 
-function takeWindow(size) {
-  const out = new Float32Array(size)
-  let filled = 0
-  while (filled < size && buffers.length > 0) {
-    const head = buffers[0]
-    const need = size - filled
-    if (head.length <= need) { out.set(head, filled); filled += head.length; buffers.shift() }
-    else { out.set(head.subarray(0, need), filled); buffers[0] = head.subarray(need); filled += need }
-  }
-  buffered -= size
-  return out
-}
-
+// Both lanes push into the same `pump` promise chain, so only one Whisper
+// inference runs at a time (the model instance isn't safe for concurrent calls)
+// while still keeping "You" and "Room" audio, and their transcripts, separate.
 function schedule(task) { pump = pump.then(task).catch((e) => console.error('[whisper]', e)) }
 
-async function transcribeChunk(audio) {
+async function transcribeChunk(audio, speaker) {
   try {
     const result = await asr(audio)
     const text = (Array.isArray(result) ? result[0]?.text : result?.text ?? '').trim()
     if (text && !SILENCE.test(text) && session) {
-      addSegment(text)
+      addSegment(text, speaker)
       await fetch('/api/session/segment', {
         method: 'POST',
         headers: { 'content-type': 'application/json' },
-        body: JSON.stringify({ id: session.id, text })
+        body: JSON.stringify({ id: session.id, text, speaker })
       }).catch(() => {})
     }
   } catch (e) {
@@ -147,21 +170,26 @@ async function transcribeChunk(audio) {
   }
 }
 
-async function processReady() {
+async function processLane(laneKey) {
+  const lane = lanes[laneKey]
   const chunk = ctx.sampleRate * CHUNK_SECONDS
-  while (buffered >= chunk && recording) {
-    await transcribeChunk(takeWindow(chunk))
+  while (lane.buffered >= chunk && recording) {
+    await transcribeChunk(takeWindow(lane, chunk), laneKey)
   }
 }
 
-// On stop: transcribe everything still buffered (full chunks + any tail >= 1s)
-// so short recordings and last words are never lost.
+// On stop: transcribe everything still buffered in BOTH lanes (full chunks +
+// any tail >= 1s) so short recordings and last words are never lost.
 async function drainFinal() {
   const rate = ctx?.sampleRate ?? 16000
   const chunk = rate * CHUNK_SECONDS
-  while (buffered >= chunk) await transcribeChunk(takeWindow(chunk))
-  if (buffered >= rate) await transcribeChunk(takeWindow(buffered))
-  buffers = []; buffered = 0
+  for (const key of ['you', 'room']) {
+    const lane = lanes[key]
+    if (!lane.active) continue
+    while (lane.buffered >= chunk) await transcribeChunk(takeWindow(lane, chunk), key)
+    if (lane.buffered >= rate) await transcribeChunk(takeWindow(lane, lane.buffered), key)
+    lane.buffers = []; lane.buffered = 0
+  }
 }
 
 async function start() {
@@ -182,7 +210,7 @@ async function start() {
     btn.className = 'stop'
     status(
       sysActive
-        ? `Recording (mic + system audio ✓) → ${session.file.split(/[\\/]/).pop()}`
+        ? `Recording — "You" and "Room" tracked separately ✓ → ${session.file.split(/[\\/]/).pop()}`
         : `⚠️ Recording MIC ONLY — no system audio captured! The other side of your meeting will be missed. Stop and re-record sharing "Entire screen" with "share system audio" checked.`
     )
   } catch (e) {
@@ -196,14 +224,21 @@ async function stop() {
   recording = false
   btn.disabled = true
   // Stop capturing new audio immediately…
-  processor?.disconnect(); mixer?.disconnect()
+  for (const lane of Object.values(lanes)) {
+    lane.processor?.disconnect()
+    lane.source?.disconnect()
+  }
   streams.forEach((s) => s.getTracks().forEach((t) => t.stop()))
   streams = []
   // …but transcribe what's already buffered before closing the session.
-  if (buffered > 0) status('Finishing transcription…')
+  const pending = lanes.you.buffered + lanes.room.buffered
+  if (pending > 0) status('Finishing transcription…')
   schedule(drainFinal)
   await pump
   ctx?.close()
+  for (const key of Object.keys(lanes)) {
+    lanes[key] = { processor: null, source: null, buffers: [], buffered: 0, active: false }
+  }
   btn.textContent = '● Record'
   btn.className = ''
   btn.disabled = false

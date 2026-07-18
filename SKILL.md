@@ -43,7 +43,12 @@ To remove the background service: `node scripts/install-autostart.mjs --uninstal
 
 ## 2. During and after a meeting
 
-Transcripts stream live into `meetings/<date>-<title>.transcript.md`.
+Transcripts stream live into `meetings/<date>-<title>.transcript.md`, with lines
+tagged `**You:**` (mic) or `**Room:**` (system audio — everyone else on the call).
+This is track-based speaker attribution, not full multi-person diarization: it
+can't tell two people on the other end apart, but it reliably separates what the
+user said from what the meeting said. Use these tags to attribute action items and
+quotes correctly in notes ("You committed to X", "Room asked about Y").
 
 When the user says **"write up my meeting"** (or similar):
 
