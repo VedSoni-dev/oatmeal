@@ -154,8 +154,17 @@ writing up notes afterward.
 
 PRs welcome. The codebase is intentionally tiny (~500 lines, zero server deps):
 if you can read `capture/server.mjs` and `capture/public/app.js`, you've read the
-whole thing. Good first issues: more Whisper model choices, a nicer recorder UI,
-smarter meeting-title detection, calendar connector recipes.
+whole thing.
+
+**Good first issues:**
+- More Whisper model choices (tiny, small, medium for speed/accuracy tradeoffs)
+- Nicer recorder UI (better styling, visual feedback, meeting timer)
+- Smarter meeting-title detection (from calendar or first few words)
+- Calendar connector recipes (Google, Outlook, Slack integration guides)
+- **Speaker diarization** (who's talking — requires Pyannote or similar; transcripts currently have no speaker labels)
+- Better error messages (when Whisper fails, when git push fails, etc.)
+
+**Not in scope:** cloud sync, accounts, compliance features (fine-grained audit logs), multi-language models beyond Whisper's baseline. Those belong in derivatives, not core.
 
 ## License
 
