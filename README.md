@@ -134,7 +134,7 @@ writing up notes afterward.
 | Path | What it is |
 |---|---|
 | [`SKILL.md`](SKILL.md) | The product spec your agent follows — setup, notes flow, knowledge base rules, calendar automation |
-| [`capture/`](capture/) | Zero-dependency local server + recorder page (mic + system loopback, in-browser Whisper, WebGPU) |
+| [`capture/`](capture/) | Zero-dependency local server + recorder page — mic + system loopback, in-browser Whisper (WebGPU, pick tiny/base/small), live You/Room transcript, built-in meeting viewer |
 | [`meetings/`](meetings/) | Your transcripts + notes. Plain Markdown. Yours. |
 | [`scripts/mcp-server.mjs`](scripts/mcp-server.mjs) | Optional MCP server — expose meetings to any MCP client |
 | [`scripts/install-autostart.mjs`](scripts/install-autostart.mjs) | Registers the recorder (+ calendar watcher) as a background OS service |
@@ -158,8 +158,6 @@ if you can read `capture/server.mjs` and `capture/public/app.js`, you've read th
 whole thing.
 
 **Good first issues:**
-- More Whisper model choices (tiny, small, medium for speed/accuracy tradeoffs)
-- Nicer recorder UI (better styling, visual feedback, meeting timer)
 - Smarter meeting-title detection (from calendar or first few words)
 - Calendar connector recipes (Google, Outlook, Slack integration guides)
 - **Full multi-person diarization** (mic vs system audio are already tagged "You"/"Room" — telling apart two+ people on the *other* end of the call would need Pyannote or similar)

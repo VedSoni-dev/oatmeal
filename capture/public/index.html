@@ -4,59 +4,74 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>🥣 Oatmeal — meeting recorder</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🥣</text></svg>" />
   <style>
-    :root { color-scheme: light dark; }
+    :root {
+      color-scheme: light dark;
+      --bg: #faf7f2; --fg: #43301f; --panel: #fff; --line: #e6d8c3;
+      --accent: #a06f49; --accent-2: #85593e; --muted: #9b8468; --rec: #c0392b;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root { --bg: #1c1713; --fg: #e6d8c3; --panel: #262019; --line: #3a3128; --muted: #8a7a68; }
+    }
     * { box-sizing: border-box; }
     body {
       margin: 0; font-family: Inter, system-ui, sans-serif;
-      background: #faf7f2; color: #43301f;
+      background: var(--bg); color: var(--fg);
       display: flex; flex-direction: column; align-items: center;
-      min-height: 100vh; padding: 2.5rem 1rem;
+      min-height: 100vh; padding: 2.5rem 1rem 1.5rem;
     }
-    @media (prefers-color-scheme: dark) {
-      body { background: #1c1713; color: #e6d8c3; }
-      .panel, input, .step, .meeting { background: #262019 !important; border-color: #3a3128 !important; color: #e6d8c3; }
-      .seg { color: #d6bd9c !important; }
-      .muted { color: #8a7a68 !important; }
-    }
-    h1 { font-size: 1.5rem; margin: 0 0 .25rem; }
-    .sub { font-size: .85rem; opacity: .65; margin-bottom: 1.75rem; text-align: center; max-width: 460px; }
+    h1 { font-size: 1.5rem; margin: 0 0 .25rem; letter-spacing: -.01em; }
+    .sub { font-size: .85rem; opacity: .65; margin-bottom: 1.6rem; text-align: center; max-width: 460px; line-height: 1.5; }
     .panel {
-      width: 100%; max-width: 680px; background: #fff;
-      border: 1px solid #e6d8c3; border-radius: 16px; padding: 1.25rem;
+      width: 100%; max-width: 680px; background: var(--panel);
+      border: 1px solid var(--line); border-radius: 16px; padding: 1.25rem;
       margin-bottom: 1rem;
     }
     .steps { display: grid; grid-template-columns: repeat(3, 1fr); gap: .6rem; width: 100%; max-width: 680px; margin-bottom: 1rem; }
     .step {
-      background: #fff; border: 1px solid #e6d8c3; border-radius: 12px;
+      background: var(--panel); border: 1px solid var(--line); border-radius: 12px;
       padding: .7rem .8rem; font-size: .78rem; line-height: 1.45;
     }
     .step b { display: block; font-size: .82rem; margin-bottom: .15rem; }
     @media (max-width: 560px) { .steps { grid-template-columns: 1fr; } }
-    input {
-      width: 100%; border: 1px solid #e6d8c3; border-radius: 9px;
-      padding: .6rem .75rem; font-size: .95rem; margin-bottom: .75rem; outline: none;
-      background: #fff;
+    .row { display: flex; gap: .5rem; margin-bottom: .75rem; }
+    input, select {
+      border: 1px solid var(--line); border-radius: 9px; background: var(--panel); color: var(--fg);
+      padding: .6rem .75rem; font-size: .95rem; outline: none; font-family: inherit;
     }
-    input:focus { border-color: #b48455; }
+    input { flex: 1; }
+    input:focus, select:focus { border-color: var(--accent); }
+    select { font-size: .82rem; color: var(--muted); }
+    .controls { display: flex; align-items: center; gap: .8rem; }
     button.rec {
       border: 0; border-radius: 9px; padding: .65rem 1.3rem; font-size: .95rem;
-      font-weight: 600; cursor: pointer; color: #fff; background: #a06f49;
+      font-weight: 600; cursor: pointer; color: #fff; background: var(--accent);
     }
     button.rec:disabled { opacity: .5; cursor: default; }
-    button.rec.stop { background: #c0392b; }
+    button.rec.stop { background: var(--rec); animation: pulse 1.6s ease-in-out infinite; }
+    @keyframes pulse { 50% { box-shadow: 0 0 0 6px rgba(192, 57, 43, .18); } }
+    #timer { font-variant-numeric: tabular-nums; font-size: .95rem; font-weight: 600; color: var(--rec); display: none; }
     #status { font-size: .82rem; margin: .8rem 0 .4rem; opacity: .8; min-height: 1.2em; line-height: 1.5; }
     #transcript { margin-top: .4rem; max-height: 40vh; overflow-y: auto; font-size: .92rem; line-height: 1.55; }
-    .seg { margin: 0 0 .6rem; color: #5a3d30; }
-    .seg b { color: #a06f49; }
+    .seg { margin: 0 0 .6rem; color: var(--accent-2); }
+    .seg b { color: var(--accent); }
     .interim { opacity: .45; font-style: italic; }
     h2 { font-size: .8rem; text-transform: uppercase; letter-spacing: .05em; opacity: .55; margin: .25rem 0 .6rem; }
     .meeting {
-      display: block; background: #fff; border: 1px solid #e6d8c3; border-radius: 10px;
-      padding: .5rem .75rem; font-size: .82rem; margin-bottom: .4rem;
+      display: block; width: 100%; text-align: left; background: var(--panel);
+      border: 1px solid var(--line); border-radius: 10px; color: var(--fg);
+      padding: .5rem .75rem; font-size: .82rem; margin-bottom: .4rem; cursor: pointer;
       font-family: ui-monospace, monospace; word-break: break-all;
     }
-    .muted { font-size: .78rem; color: #85593e; opacity: .8; }
+    .meeting:hover { border-color: var(--accent); }
+    .muted { font-size: .78rem; color: var(--muted); }
+    #viewer { display: none; }
+    #viewer.open { display: block; }
+    #viewer-title { font-family: ui-monospace, monospace; font-size: .8rem; opacity: .7; word-break: break-all; }
+    #viewer-close { float: right; background: none; border: 0; color: var(--muted); cursor: pointer; font-size: .9rem; }
+    #viewer-body { margin-top: .6rem; max-height: 45vh; overflow-y: auto; font-size: .88rem; line-height: 1.6; white-space: pre-wrap; }
+    #viewer-body b { color: var(--accent); }
     .foot { margin-top: auto; padding-top: 1.5rem; font-size: .75rem; opacity: .5; text-align: center; }
     .foot a { color: inherit; }
   </style>
@@ -69,16 +84,32 @@
   </div>
 
   <div class="steps">
-    <div class="step"><b>1 · Record</b> Title your meeting, hit Record. First run downloads the Whisper model once (~80 MB), then it's offline.</div>
+    <div class="step"><b>1 · Record</b> Title your meeting, hit Record. First run downloads the Whisper model once, then it's offline.</div>
     <div class="step"><b>2 · Share audio</b> Pick <b>Entire screen</b> and CHECK <b>"share system audio"</b> (or the meeting tab + tab audio). A window share has no audio.</div>
     <div class="step"><b>3 · Get notes</b> After the meeting, tell your coding agent: <i>"write up my meeting"</i>. It reads the transcript and commits notes.</div>
   </div>
 
   <div class="panel">
-    <input id="title" placeholder="Meeting title (e.g. Standup, Acme discovery call)" />
-    <button id="btn" class="rec">● Record</button>
+    <div class="row">
+      <input id="title" placeholder="Meeting title (e.g. Standup, Acme discovery call)" />
+      <select id="model" title="Whisper model — bigger is more accurate, slower">
+        <option value="Xenova/whisper-tiny">tiny · fastest</option>
+        <option value="Xenova/whisper-base" selected>base · balanced</option>
+        <option value="Xenova/whisper-small">small · most accurate</option>
+      </select>
+    </div>
+    <div class="controls">
+      <button id="btn" class="rec">● Record</button>
+      <span id="timer">00:00</span>
+    </div>
     <div id="status">Ready.</div>
     <div id="transcript"></div>
+  </div>
+
+  <div class="panel" id="viewer">
+    <button id="viewer-close">✕ close</button>
+    <div id="viewer-title"></div>
+    <div id="viewer-body"></div>
   </div>
 
   <div class="panel">

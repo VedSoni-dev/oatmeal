@@ -16,7 +16,8 @@ import { fileURLToPath } from 'node:url'
 
 const __dirname = dirname(fileURLToPath(import.meta.url))
 const ROOT = join(__dirname, '..')
-const MEETINGS_DIR = join(ROOT, 'meetings')
+// Point at a team knowledge repo's meetings folder with OATMEAL_MEETINGS_DIR.
+const MEETINGS_DIR = process.env.OATMEAL_MEETINGS_DIR ?? join(ROOT, 'meetings')
 const PORT = Number(process.env.PORT ?? 4123)
 
 const MIME = {
@@ -109,6 +110,14 @@ const server = createServer(async (req, res) => {
       return send(res, 200, { files })
     }
 
+    if (req.method === 'GET' && path === '/api/meeting') {
+      // basename-only: no path traversal out of the meetings dir
+      const name = (url.searchParams.get('file') ?? '').replace(/[\\/]/g, '')
+      const file = join(MEETINGS_DIR, name)
+      if (!name.endsWith('.md') || !existsSync(file)) return send(res, 404, { error: 'not found' })
+      return send(res, 200, { file: name, content: await readFile(file, 'utf8') })
+    }
+
     if (req.method === 'GET' && path === '/api/health') {
       return send(res, 200, { ok: true, meetingsDir: MEETINGS_DIR })
     }
@@ -138,6 +147,14 @@ const server = createServer(async (req, res) => {
   } catch (e) {
     send(res, 500, { error: String(e?.message ?? e) })
   }
+})
+
+server.on('error', (e) => {
+  if (e.code === 'EADDRINUSE') {
+    console.log(`[oatmeal] already running on http://localhost:${PORT} — nothing to do.`)
+    process.exit(0)
+  }
+  throw e
 })
 
 server.listen(PORT, () => {

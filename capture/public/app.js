@@ -10,18 +10,24 @@
 
 const btn = document.getElementById('btn')
 const titleInput = document.getElementById('title')
+const modelSelect = document.getElementById('model')
 const statusEl = document.getElementById('status')
 const transcriptEl = document.getElementById('transcript')
+const timerEl = document.getElementById('timer')
 
 const CHUNK_SECONDS = 5
-const MODEL_ID = 'Xenova/whisper-base'
 const SILENCE = /^[\s]*[[(][^)\]]*[)\]][\s]*$/
 
 let recording = false
 let session = null
 let ctx, streams = []
-let asr = null
+let asr = null, asrModel = null
 let pump = Promise.resolve()
+let timerInterval = null, startedAt = 0
+
+// Whisper model choice persists across visits; changing it reloads on next record.
+modelSelect.value = localStorage.getItem('oatmeal-model') ?? 'Xenova/whisper-base'
+modelSelect.addEventListener('change', () => localStorage.setItem('oatmeal-model', modelSelect.value))
 
 // Two independent capture lanes, each with its own buffer + processor node.
 const lanes = {
@@ -30,6 +36,21 @@ const lanes = {
 }
 
 function status(msg) { statusEl.textContent = msg }
+
+function startTimer() {
+  startedAt = Date.now()
+  timerEl.style.display = 'inline'
+  timerInterval = setInterval(() => {
+    const s = Math.floor((Date.now() - startedAt) / 1000)
+    timerEl.textContent = `${String(Math.floor(s / 60)).padStart(2, '0')}:${String(s % 60).padStart(2, '0')}`
+  }, 500)
+}
+
+function stopTimer() {
+  clearInterval(timerInterval)
+  timerEl.style.display = 'none'
+  timerEl.textContent = '00:00'
+}
 
 function addSegment(text, speaker, interim = false) {
   if (interim) {
@@ -56,7 +77,9 @@ function addSegment(text, speaker, interim = false) {
 }
 
 async function loadWhisper() {
-  if (asr) return asr
+  const want = modelSelect.value
+  if (asr && asrModel === want) return asr
+  asr = null
   const { pipeline, env } = await import('/vendor/transformers/transformers.min.js')
   env.allowLocalModels = false
   if (env.backends?.onnx?.wasm) {
@@ -65,7 +88,7 @@ async function loadWhisper() {
   }
   const device = 'gpu' in navigator ? 'webgpu' : 'wasm'
   const make = (dev) =>
-    pipeline('automatic-speech-recognition', MODEL_ID, {
+    pipeline('automatic-speech-recognition', want, {
       device: dev,
       progress_callback: (p) => {
         if (p.status === 'progress' && typeof p.progress === 'number') {
@@ -79,6 +102,7 @@ async function loadWhisper() {
     if (device === 'webgpu') { status('WebGPU failed, falling back to WASM…'); asr = await make('wasm') }
     else throw e
   }
+  asrModel = want
   return asr
 }
 
@@ -194,6 +218,7 @@ async function drainFinal() {
 
 async function start() {
   btn.disabled = true
+  modelSelect.disabled = true
   try {
     status('Loading Whisper…')
     await loadWhisper()
@@ -206,8 +231,9 @@ async function start() {
     })
     session = await res.json()
     recording = true
+    startTimer()
     btn.textContent = '■ Stop'
-    btn.className = 'stop'
+    btn.classList.add('stop')
     status(
       sysActive
         ? `Recording — "You" and "Room" tracked separately ✓ → ${session.file.split(/[\\/]/).pop()}`
@@ -223,6 +249,7 @@ async function start() {
 async function stop() {
   recording = false
   btn.disabled = true
+  stopTimer()
   // Stop capturing new audio immediately…
   for (const lane of Object.values(lanes)) {
     lane.processor?.disconnect()
@@ -240,8 +267,9 @@ async function stop() {
     lanes[key] = { processor: null, source: null, buffers: [], buffered: 0, active: false }
   }
   btn.textContent = '● Record'
-  btn.className = ''
+  btn.classList.remove('stop')
   btn.disabled = false
+  modelSelect.disabled = false
   if (session) {
     const res = await fetch('/api/session/stop', {
       method: 'POST',
@@ -260,13 +288,50 @@ async function stop() {
   }
 }
 
+// --- meeting viewer ---
+const viewer = document.getElementById('viewer')
+const viewerTitle = document.getElementById('viewer-title')
+const viewerBody = document.getElementById('viewer-body')
+document.getElementById('viewer-close').addEventListener('click', () => viewer.classList.remove('open'))
+
+async function openMeeting(file) {
+  try {
+    const { content } = await (await fetch(`/api/meeting?file=${encodeURIComponent(file)}`)).json()
+    viewerTitle.textContent = file
+    // plain text with just **bold** rendered — enough for speaker tags + headers
+    viewerBody.textContent = ''
+    content.split(/(\*\*[^*]+\*\*)/).forEach((part) => {
+      if (part.startsWith('**') && part.endsWith('**')) {
+        const b = document.createElement('b')
+        b.textContent = part.slice(2, -2)
+        viewerBody.appendChild(b)
+      } else {
+        viewerBody.appendChild(document.createTextNode(part))
+      }
+    })
+    viewer.classList.add('open')
+    viewer.scrollIntoView({ behavior: 'smooth', block: 'nearest' })
+  } catch {
+    status('Could not open that meeting file.')
+  }
+}
+
 async function loadMeetings() {
   const el = document.getElementById('meetings')
   try {
     const { files } = await (await fetch('/api/meetings')).json()
-    el.innerHTML = files.length
-      ? files.slice(0, 8).map((f) => `<span class="meeting">${f}</span>`).join('')
-      : '<span class="muted">No meetings yet — your first transcript will appear here.</span>'
+    el.textContent = ''
+    if (!files.length) {
+      el.innerHTML = '<span class="muted">No meetings yet — your first transcript will appear here.</span>'
+      return
+    }
+    files.slice(0, 10).forEach((f) => {
+      const b = document.createElement('button')
+      b.className = 'meeting'
+      b.textContent = f
+      b.addEventListener('click', () => openMeeting(f))
+      el.appendChild(b)
+    })
   } catch {
     el.innerHTML = '<span class="muted">Could not load meetings.</span>'
   }
