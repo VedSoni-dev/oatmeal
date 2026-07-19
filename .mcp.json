@@ -1,0 +1,8 @@
+{
+  "mcpServers": {
+    "oatmeal": {
+      "command": "node",
+      "args": ["scripts/mcp-server.mjs"]
+    }
+  }
+}

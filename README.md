@@ -78,6 +78,28 @@ npm start          # recorder at http://localhost:4123
 Transcripts land in `meetings/` as plain Markdown. Bring any tool you like.
 </details>
 
+## Claude Code superpowers
+
+Cloning the repo IS the install. Claude Code picks all of this up automatically:
+
+| You type | What happens |
+|---|---|
+| `/meeting` | Recorder starts (if needed) and opens in your browser — for when you're 2 minutes out |
+| `/writeup` | Latest transcript becomes polished notes: summary, decisions, action items — committed & pushed |
+| `/recall what did we tell Acme about pricing?` | Grounded answer from every meeting in the knowledge base, with file citations |
+| `/prep akrit` | Pre-meeting brief: what you discussed last time, open action items, promises made, suggested agenda |
+
+And two things you never type:
+
+- **It notices unwritten meetings.** A `SessionStart` hook checks for transcripts
+  with no notes — open Claude Code after a call and it offers the write-up before
+  you ask.
+- **MCP auto-registers.** [`.mcp.json`](.mcp.json) exposes `list_meetings` /
+  `search_meetings` / `get_meeting` to any MCP client the moment you open the repo.
+
+(Other agents: same flows work by asking in plain English — the commands are just
+markdown files in [`.claude/commands/`](.claude/commands/), readable by anything.)
+
 ## The team knowledge base
 
 **Sharing = git.** No sync server, no org accounts, no per-seat pricing:
