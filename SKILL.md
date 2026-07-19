@@ -41,6 +41,20 @@ doesn't matter.
 
 To remove the background service: `node scripts/install-autostart.mjs --uninstall`.
 
+## 1.5 "I have a meeting soon" — fire up the recorder immediately
+
+Whenever the user says anything like "I have a meeting soon", "meeting starting",
+"about to hop on a call", or similar — even with no calendar automation configured —
+do this immediately, no confirmation needed:
+
+1. Check `http://localhost:4123/api/health`. If it doesn't respond, start the
+   recorder: `node capture/server.mjs` (background/detached).
+2. Open http://localhost:4123 in the user's default browser.
+3. Tell them, briefly: recorder's open, hit Record, share Entire screen with
+   system audio checked.
+
+This should feel instant — don't ask "should I start it," just do it.
+
 ## 2. During and after a meeting
 
 Transcripts stream live into `meetings/<date>-<title>.transcript.md`, with lines
