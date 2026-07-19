@@ -8,118 +8,255 @@
   <style>
     :root {
       color-scheme: light dark;
-      --bg: #faf7f2; --fg: #43301f; --panel: #fff; --line: #e6d8c3;
-      --accent: #a06f49; --accent-2: #85593e; --muted: #9b8468; --rec: #c0392b;
+      --bg: #f5eedd;
+      --panel: #fdf8ec;
+      --ink: #2c1e10;
+      --ink-soft: #5c4326;
+      --line: #d9c7a3;
+      --line-strong: #2c1e10;
+      --accent: #b4551f;
+      --rec: #a92318;
+      --muted: #9a8360;
+      --serif: "Iowan Old Style", "Palatino Linotype", Palatino, "Book Antiqua", Georgia, serif;
+      --mono: "Cascadia Code", "SF Mono", "JetBrains Mono", Consolas, "Liberation Mono", Menlo, monospace;
     }
     @media (prefers-color-scheme: dark) {
-      :root { --bg: #1c1713; --fg: #e6d8c3; --panel: #262019; --line: #3a3128; --muted: #8a7a68; }
+      :root {
+        --bg: #191310; --panel: #211a13; --ink: #eadfc6; --ink-soft: #c9b48d;
+        --line: #3b2c1c; --line-strong: #eadfc6; --accent: #e07a3c; --rec: #e05348; --muted: #8d7a5e;
+      }
     }
     * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
     body {
-      margin: 0; font-family: Inter, system-ui, sans-serif;
-      background: var(--bg); color: var(--fg);
-      display: flex; flex-direction: column; align-items: center;
-      min-height: 100vh; padding: 2.5rem 1rem 1.5rem;
+      margin: 0; background: var(--bg); color: var(--ink);
+      font-family: var(--serif); line-height: 1.5;
+      min-height: 100vh; display: flex; flex-direction: column; align-items: center;
+      padding: 0 1.25rem 2rem;
     }
-    h1 { font-size: 1.5rem; margin: 0 0 .25rem; letter-spacing: -.01em; }
-    .sub { font-size: .85rem; opacity: .65; margin-bottom: 1.6rem; text-align: center; max-width: 460px; line-height: 1.5; }
-    .panel {
-      width: 100%; max-width: 680px; background: var(--panel);
-      border: 1px solid var(--line); border-radius: 16px; padding: 1.25rem;
-      margin-bottom: 1rem;
+    /* paper grain */
+    body::before {
+      content: ""; position: fixed; inset: 0; pointer-events: none; z-index: 0;
+      opacity: .5; mix-blend-mode: multiply;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2'/%3E%3CfeColorMatrix values='0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 .05 0'/%3E%3C/filter%3E%3Crect width='140' height='140' filter='url(%23n)'/%3E%3C/svg%3E");
     }
-    .steps { display: grid; grid-template-columns: repeat(3, 1fr); gap: .6rem; width: 100%; max-width: 680px; margin-bottom: 1rem; }
-    .step {
-      background: var(--panel); border: 1px solid var(--line); border-radius: 12px;
-      padding: .7rem .8rem; font-size: .78rem; line-height: 1.45;
+    @media (prefers-color-scheme: dark) { body::before { mix-blend-mode: screen; opacity: .35; } }
+    body > * { position: relative; z-index: 1; }
+
+    @keyframes rise { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
+    .masthead, .howto, main, .foot { animation: rise .55s cubic-bezier(.2,.7,.3,1) both; }
+    .howto { animation-delay: .08s; } main { animation-delay: .16s; } .foot { animation-delay: .3s; }
+
+    /* ── masthead ─────────────────────────────── */
+    .masthead {
+      width: 100%; max-width: 1000px; text-align: center;
+      padding: 2.2rem 0 1rem; margin-bottom: .1rem;
+      border-bottom: 3px double var(--line-strong);
     }
-    .step b { display: block; font-size: .82rem; margin-bottom: .15rem; }
-    @media (max-width: 560px) { .steps { grid-template-columns: 1fr; } }
-    .row { display: flex; gap: .5rem; margin-bottom: .75rem; }
+    .masthead h1 {
+      margin: 0; font-size: clamp(2.6rem, 7vw, 4rem); font-weight: 600;
+      letter-spacing: -.02em; line-height: 1.05;
+    }
+    .masthead h1 .bowl { font-size: .8em; margin-right: .12em; }
+    .masthead .tag {
+      font-family: var(--mono); font-size: .68rem; letter-spacing: .22em;
+      text-transform: uppercase; color: var(--muted); margin-top: .7rem;
+      display: flex; justify-content: center; gap: 1.2rem; flex-wrap: wrap;
+    }
+    .masthead .tag span::before { content: "· "; color: var(--accent); }
+    .masthead .tag span:first-child::before { content: ""; }
+
+    /* ── how it works strip ───────────────────── */
+    .howto {
+      width: 100%; max-width: 1000px; display: grid;
+      grid-template-columns: repeat(3, 1fr); gap: 0;
+      border-bottom: 1px solid var(--line); margin-bottom: 1.6rem;
+    }
+    .howto > div {
+      padding: .8rem 1rem .9rem; font-size: .8rem; color: var(--ink-soft);
+      border-left: 1px solid var(--line); line-height: 1.45;
+    }
+    .howto > div:first-child { border-left: 0; padding-left: .2rem; }
+    .howto b {
+      display: block; font-family: var(--mono); font-size: .66rem;
+      letter-spacing: .18em; text-transform: uppercase; color: var(--accent);
+      margin-bottom: .3rem; font-weight: 600;
+    }
+    @media (max-width: 640px) {
+      .howto { grid-template-columns: 1fr; }
+      .howto > div { border-left: 0; border-top: 1px solid var(--line); padding-left: .2rem; }
+      .howto > div:first-child { border-top: 0; }
+    }
+
+    /* ── layout ───────────────────────────────── */
+    main {
+      width: 100%; max-width: 1000px; display: grid;
+      grid-template-columns: minmax(0, 1.25fr) minmax(260px, .75fr); gap: 2.2rem;
+      align-items: start;
+    }
+    @media (max-width: 800px) { main { grid-template-columns: 1fr; gap: 1.6rem; } }
+
+    h2 {
+      font-family: var(--mono); font-size: .66rem; font-weight: 600;
+      letter-spacing: .22em; text-transform: uppercase; color: var(--muted);
+      margin: 0 0 .8rem; display: flex; align-items: center; gap: .7rem;
+    }
+    h2::after { content: ""; flex: 1; height: 1px; background: var(--line); }
+
+    /* ── recorder ─────────────────────────────── */
+    .row { display: flex; gap: .6rem; margin-bottom: .9rem; }
     input, select {
-      border: 1px solid var(--line); border-radius: 9px; background: var(--panel); color: var(--fg);
-      padding: .6rem .75rem; font-size: .95rem; outline: none; font-family: inherit;
+      font-family: var(--serif); font-size: 1rem; color: var(--ink);
+      background: var(--panel); border: 1px solid var(--line); border-radius: 3px;
+      padding: .6rem .75rem; outline: none;
     }
-    input { flex: 1; }
-    input:focus, select:focus { border-color: var(--accent); }
-    select { font-size: .82rem; color: var(--muted); }
-    .controls { display: flex; align-items: center; gap: .8rem; }
+    input { flex: 1; min-width: 0; }
+    input::placeholder { color: var(--muted); font-style: italic; }
+    input:focus, select:focus { border-color: var(--accent); box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent) 14%, transparent); }
+    select { font-family: var(--mono); font-size: .72rem; color: var(--ink-soft); cursor: pointer; }
+
+    .controls { display: flex; align-items: center; gap: 1.1rem; margin-bottom: .9rem; }
     button.rec {
-      border: 0; border-radius: 9px; padding: .65rem 1.3rem; font-size: .95rem;
-      font-weight: 600; cursor: pointer; color: #fff; background: var(--accent);
+      font-family: var(--mono); font-size: .82rem; font-weight: 600;
+      letter-spacing: .14em; text-transform: uppercase;
+      color: var(--panel); background: var(--ink); border: 0; border-radius: 3px;
+      padding: .85rem 1.6rem; cursor: pointer;
+      display: inline-flex; align-items: center; gap: .6rem;
+      transition: background .15s, transform .08s;
     }
-    button.rec:disabled { opacity: .5; cursor: default; }
-    button.rec.stop { background: var(--rec); animation: pulse 1.6s ease-in-out infinite; }
-    @keyframes pulse { 50% { box-shadow: 0 0 0 6px rgba(192, 57, 43, .18); } }
-    #timer { font-variant-numeric: tabular-nums; font-size: .95rem; font-weight: 600; color: var(--rec); display: none; }
-    #status { font-size: .82rem; margin: .8rem 0 .4rem; opacity: .8; min-height: 1.2em; line-height: 1.5; }
-    #transcript { margin-top: .4rem; max-height: 40vh; overflow-y: auto; font-size: .92rem; line-height: 1.55; }
-    .seg { margin: 0 0 .6rem; color: var(--accent-2); }
-    .seg b { color: var(--accent); }
+    button.rec:hover { background: var(--accent); }
+    button.rec:active { transform: translateY(1px); }
+    button.rec:disabled { opacity: .45; cursor: default; }
+    button.rec .dot {
+      width: 9px; height: 9px; border-radius: 50%; background: var(--rec);
+      box-shadow: 0 0 0 2px color-mix(in srgb, var(--panel) 55%, transparent);
+    }
+    button.rec.stop { background: var(--rec); animation: seal 1.5s ease-in-out infinite; }
+    button.rec.stop .dot { background: var(--panel); animation: blinkdot 1.5s ease-in-out infinite; }
+    @keyframes seal { 50% { box-shadow: 0 0 0 7px color-mix(in srgb, var(--rec) 22%, transparent); } }
+    @keyframes blinkdot { 50% { opacity: .35; } }
+    #timer {
+      display: none; font-family: var(--mono); font-variant-numeric: tabular-nums;
+      font-size: 1.5rem; font-weight: 600; color: var(--rec); letter-spacing: .04em;
+    }
+    #status {
+      font-size: .84rem; font-style: italic; color: var(--ink-soft);
+      min-height: 1.3em; margin-bottom: .4rem; line-height: 1.5;
+    }
+
+    /* transcript — receipt printer */
+    #transcript {
+      font-family: var(--mono); font-size: .8rem; line-height: 1.7;
+      max-height: 46vh; overflow-y: auto; padding-right: .3rem;
+    }
+    #transcript:not(:empty) { border-top: 1px dashed var(--line); padding-top: .8rem; margin-top: .5rem; }
+    .seg { margin: 0 0 .55rem; color: var(--ink-soft); animation: rise .3s ease both; }
+    .seg b { color: var(--accent); font-weight: 600; }
     .interim { opacity: .45; font-style: italic; }
-    h2 { font-size: .8rem; text-transform: uppercase; letter-spacing: .05em; opacity: .55; margin: .25rem 0 .6rem; }
+
+    /* ── ledger (right column) ────────────────── */
     .meeting {
-      display: block; width: 100%; text-align: left; background: var(--panel);
-      border: 1px solid var(--line); border-radius: 10px; color: var(--fg);
-      padding: .5rem .75rem; font-size: .82rem; margin-bottom: .4rem; cursor: pointer;
-      font-family: ui-monospace, monospace; word-break: break-all;
+      display: block; width: 100%; text-align: left; cursor: pointer;
+      background: none; border: 0; border-bottom: 1px solid var(--line);
+      padding: .55rem .1rem; color: var(--ink); font-family: var(--mono);
+      transition: padding-left .15s, color .15s;
     }
-    .meeting:hover { border-color: var(--accent); }
-    .muted { font-size: .78rem; color: var(--muted); }
-    #viewer { display: none; }
-    #viewer.open { display: block; }
-    #viewer-title { font-family: ui-monospace, monospace; font-size: .8rem; opacity: .7; word-break: break-all; }
-    #viewer-close { float: right; background: none; border: 0; color: var(--muted); cursor: pointer; font-size: .9rem; }
-    #viewer-body { margin-top: .6rem; max-height: 45vh; overflow-y: auto; font-size: .88rem; line-height: 1.6; white-space: pre-wrap; }
+    .meeting:hover { color: var(--accent); padding-left: .45rem; }
+    .meeting .m-date { display: block; font-size: .64rem; color: var(--muted); letter-spacing: .08em; }
+    .meeting .m-name { display: block; font-size: .78rem; margin-top: .1rem; word-break: break-word; }
+    .meeting .m-kind { color: var(--accent); }
+    .muted { font-size: .78rem; color: var(--muted); font-style: italic; }
+
+    /* viewer — typewritten page */
+    #viewer { display: none; margin-bottom: 1.6rem; }
+    #viewer.open { display: block; animation: rise .3s ease both; }
+    .viewer-card {
+      background: var(--panel); border: 1px solid var(--line); border-radius: 2px;
+      padding: 1rem 1.1rem; box-shadow: 2px 3px 0 color-mix(in srgb, var(--ink) 8%, transparent);
+    }
+    #viewer-close {
+      float: right; background: none; border: 0; cursor: pointer;
+      font-family: var(--mono); font-size: .68rem; letter-spacing: .1em;
+      text-transform: uppercase; color: var(--muted); padding: 0 0 .2rem .6rem;
+    }
+    #viewer-close:hover { color: var(--rec); }
+    #viewer-title { font-family: var(--mono); font-size: .66rem; color: var(--muted); word-break: break-all; letter-spacing: .06em; }
+    #viewer-body {
+      margin-top: .7rem; max-height: 44vh; overflow-y: auto;
+      font-family: var(--mono); font-size: .76rem; line-height: 1.75;
+      white-space: pre-wrap; color: var(--ink-soft);
+    }
     #viewer-body b { color: var(--accent); }
-    .foot { margin-top: auto; padding-top: 1.5rem; font-size: .75rem; opacity: .5; text-align: center; }
-    .foot a { color: inherit; }
+
+    /* ── footer ───────────────────────────────── */
+    .foot {
+      width: 100%; max-width: 1000px; margin-top: 2.4rem; padding-top: .8rem;
+      border-top: 3px double var(--line-strong);
+      font-family: var(--mono); font-size: .66rem; letter-spacing: .12em;
+      text-transform: uppercase; color: var(--muted);
+      display: flex; justify-content: space-between; gap: 1rem; flex-wrap: wrap;
+    }
+    .foot a { color: inherit; text-decoration-color: var(--accent); }
+    .foot a:hover { color: var(--accent); }
+
+    ::selection { background: color-mix(in srgb, var(--accent) 25%, transparent); }
+    ::-webkit-scrollbar { width: 8px; }
+    ::-webkit-scrollbar-thumb { background: var(--line); border-radius: 4px; }
   </style>
 </head>
 <body>
-  <h1>🥣 Oatmeal</h1>
-  <div class="sub">
-    Local meeting recorder. Audio is transcribed by Whisper <b>on this machine</b> and
-    never leaves it. Your coding agent turns transcripts into notes.
-  </div>
 
-  <div class="steps">
-    <div class="step"><b>1 · Record</b> Title your meeting, hit Record. First run downloads the Whisper model once, then it's offline.</div>
-    <div class="step"><b>2 · Share audio</b> Pick <b>Entire screen</b> and CHECK <b>"share system audio"</b> (or the meeting tab + tab audio). A window share has no audio.</div>
-    <div class="step"><b>3 · Get notes</b> After the meeting, tell your coding agent: <i>"write up my meeting"</i>. It reads the transcript and commits notes.</div>
-  </div>
-
-  <div class="panel">
-    <div class="row">
-      <input id="title" placeholder="Meeting title (e.g. Standup, Acme discovery call)" />
-      <select id="model" title="Whisper model — bigger is more accurate, slower">
-        <option value="Xenova/whisper-tiny">tiny · fastest</option>
-        <option value="Xenova/whisper-base" selected>base · balanced</option>
-        <option value="Xenova/whisper-small">small · most accurate</option>
-      </select>
+  <header class="masthead">
+    <h1><span class="bowl">🥣</span>Oatmeal</h1>
+    <div class="tag">
+      <span>local meeting recorder</span>
+      <span>audio never leaves this machine</span>
+      <span>your agent writes the notes</span>
     </div>
-    <div class="controls">
-      <button id="btn" class="rec">● Record</button>
-      <span id="timer">00:00</span>
-    </div>
-    <div id="status">Ready.</div>
-    <div id="transcript"></div>
-  </div>
+  </header>
 
-  <div class="panel" id="viewer">
-    <button id="viewer-close">✕ close</button>
-    <div id="viewer-title"></div>
-    <div id="viewer-body"></div>
-  </div>
+  <section class="howto">
+    <div><b>01 — Record</b> Title the meeting, hit record. Whisper downloads once, then works fully offline.</div>
+    <div><b>02 — Share audio</b> Pick <u>Entire screen</u> and check <u>“share system audio”</u> — a window share carries no audio.</div>
+    <div><b>03 — Get notes</b> Afterward, tell your coding agent <i>“write up my meeting.”</i> It reads, writes, commits.</div>
+  </section>
 
-  <div class="panel">
-    <h2>Recent meetings</h2>
-    <div id="meetings"><span class="muted">Loading…</span></div>
-  </div>
+  <main>
+    <section class="recorder">
+      <h2>Recorder</h2>
+      <div class="row">
+        <input id="title" placeholder="Meeting title — e.g. Standup, Acme discovery call" />
+        <select id="model" title="Whisper model — bigger is more accurate, slower">
+          <option value="Xenova/whisper-tiny">tiny · fastest</option>
+          <option value="Xenova/whisper-base" selected>base · balanced</option>
+          <option value="Xenova/whisper-small">small · sharpest</option>
+        </select>
+      </div>
+      <div class="controls">
+        <button id="btn" class="rec"><span class="dot"></span>Record</button>
+        <span id="timer">00:00</span>
+      </div>
+      <div id="status">Ready.</div>
+      <div id="transcript"></div>
+    </section>
 
-  <div class="foot">
-    open source · MIT · <a href="https://github.com/VedSoni-dev/oatmeal">github.com/VedSoni-dev/oatmeal</a>
-  </div>
+    <aside>
+      <div id="viewer">
+        <div class="viewer-card">
+          <button id="viewer-close">✕ close</button>
+          <div id="viewer-title"></div>
+          <div id="viewer-body"></div>
+        </div>
+      </div>
+      <h2>Ledger</h2>
+      <div id="meetings"><span class="muted">Loading…</span></div>
+    </aside>
+  </main>
+
+  <footer class="foot">
+    <span>open source · MIT</span>
+    <span>the whole app is two files — <a href="https://github.com/VedSoni-dev/oatmeal">view source</a></span>
+  </footer>
 
   <script type="module" src="/app.js"></script>
 </body>

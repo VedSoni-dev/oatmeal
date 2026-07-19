@@ -232,7 +232,7 @@ async function start() {
     session = await res.json()
     recording = true
     startTimer()
-    btn.textContent = '■ Stop'
+    btn.innerHTML = '<span class="dot"></span>Stop'
     btn.classList.add('stop')
     status(
       sysActive
@@ -266,7 +266,7 @@ async function stop() {
   for (const key of Object.keys(lanes)) {
     lanes[key] = { processor: null, source: null, buffers: [], buffered: 0, active: false }
   }
-  btn.textContent = '● Record'
+  btn.innerHTML = '<span class="dot"></span>Record'
   btn.classList.remove('stop')
   btn.disabled = false
   modelSelect.disabled = false
@@ -328,7 +328,27 @@ async function loadMeetings() {
     files.slice(0, 10).forEach((f) => {
       const b = document.createElement('button')
       b.className = 'meeting'
-      b.textContent = f
+      // "2026-07-18-1432-standup.transcript.md" -> date line + name line
+      const m = f.match(/^(\d{4}-\d{2}-\d{2})-(\d{2})(\d{2})-(.+?)\.(transcript|notes)\.md$/)
+      if (m) {
+        const [, date, hh, mm, slug, kind] = m
+        const dateEl = document.createElement('span')
+        dateEl.className = 'm-date'
+        dateEl.textContent = `${date} · ${hh}:${mm}`
+        const nameEl = document.createElement('span')
+        nameEl.className = 'm-name'
+        nameEl.textContent = slug.replace(/-/g, ' ') + ' '
+        const kindEl = document.createElement('span')
+        kindEl.className = 'm-kind'
+        kindEl.textContent = kind === 'notes' ? '§ notes' : '¶ transcript'
+        nameEl.appendChild(kindEl)
+        b.append(dateEl, nameEl)
+      } else {
+        const nameEl = document.createElement('span')
+        nameEl.className = 'm-name'
+        nameEl.textContent = f
+        b.appendChild(nameEl)
+      }
       b.addEventListener('click', () => openMeeting(f))
       el.appendChild(b)
     })
