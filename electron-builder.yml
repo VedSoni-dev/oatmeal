@@ -1,0 +1,47 @@
+appId: dev.vedsoni.oatmeal
+productName: Oatmeal
+directories:
+  output: dist
+  buildResources: build
+files:
+  - desktop/**
+  - package.json
+  - LICENSE
+  - publik-app-token.txt
+  - '!**/*.map'
+asar: true
+asarUnpack:
+  - node_modules/@openai/**
+  - node_modules/@anthropic-ai/**
+  - node_modules/onnxruntime-node/**
+  - node_modules/@img/**
+  - node_modules/sharp/**
+npmRebuild: false
+artifactName: '${productName}-${version}-${os}-${arch}.${ext}'
+mac:
+  category: public.app-category.productivity
+  target:
+    - dmg
+    - zip
+  minimumSystemVersion: '14.2'
+  hardenedRuntime: true
+  entitlements: build/entitlements.mac.plist
+  entitlementsInherit: build/entitlements.mac.plist
+  extendInfo:
+    NSMicrophoneUsageDescription: Oatmeal listens to your microphone to transcribe meetings on this computer.
+    NSAudioCaptureUsageDescription: Oatmeal captures meeting audio so you can transcribe the other participants locally.
+    NSScreenCaptureUsageDescription: Oatmeal uses screen sharing permission to capture system audio. Video is not recorded or saved.
+win:
+  target:
+    - nsis
+nsis:
+  oneClick: false
+  perMachine: false
+  allowToChangeInstallationDirectory: true
+  createDesktopShortcut: true
+  createStartMenuShortcut: true
+  deleteAppDataOnUninstall: false
+publish:
+  provider: github
+  owner: VedSoni-dev
+  repo: oatmeal

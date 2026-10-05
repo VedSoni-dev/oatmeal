@@ -11,7 +11,7 @@ echo
 # --- Pillar 1: Transcribe ---
 echo "[1/3] Starting recorder at localhost:4123..."
 if ! curl -s --max-time 2 http://localhost:4123/api/health >/dev/null 2>&1; then
-  npm start &
+  npm run start:browser &
   RECORDER_PID=$!
   sleep 3
   trap "kill $RECORDER_PID 2>/dev/null" EXIT

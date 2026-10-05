@@ -1,0 +1,408 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <meta
+      http-equiv="Content-Security-Policy"
+      content="default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; connect-src 'self'; media-src 'self' blob:; object-src 'none'; base-uri 'none'; form-action 'none'"
+    />
+    <title>Oatmeal</title>
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <div class="shell">
+      <aside class="sidebar">
+        <div class="brand">
+          <svg viewBox="0 0 36 36" aria-hidden="true">
+            <path d="M5 18h26c-1 9-6 13-13 13S6 27 5 18Z" />
+            <path d="M13 12c-4-5 4-5 0-10M22 12c-4-5 4-5 0-10" /></svg
+          ><span>oatmeal<span class="brand-dot">.</span></span>
+        </div>
+        <button id="new-meeting" class="primary new">
+          <span aria-hidden="true">＋</span> New meeting <kbd>⌘ N</kbd>
+        </button>
+        <label class="search"
+          ><span aria-hidden="true">⌕</span
+          ><input
+            id="search"
+            type="search"
+            placeholder="Find a meeting…"
+            aria-label="Search meeting titles, notes, and transcripts"
+        /></label>
+        <div class="library-label">
+          YOUR MEETINGS <span id="meeting-count">0</span>
+        </div>
+        <nav id="library" aria-label="Meeting library"></nav>
+        <div class="sidebar-bottom">
+          <button id="import" class="nav-button">
+            <span aria-hidden="true">↥</span> Import transcript</button
+          ><button id="settings-open" class="nav-button">
+            <span aria-hidden="true">⚙</span> Settings
+            <span id="provider-badge">Local</span>
+          </button>
+          <div class="local-line"><i></i> A little more present.</div>
+        </div>
+      </aside>
+      <main>
+        <header class="topbar">
+          <span id="breadcrumb">Your meeting notebook</span
+          ><span class="topbar-right"
+            ><span id="save-status" role="status"></span
+            ><button id="export" class="quiet" hidden>Export ↗</button></span
+          >
+        </header>
+        <div id="notice" role="alert" hidden>
+          <span id="notice-text"></span
+          ><button id="notice-dismiss" aria-label="Dismiss message">×</button>
+        </div>
+        <div id="recovery" class="recovery" hidden>
+          <span>There’s saved audio waiting to be transcribed.</span
+          ><button id="recover">Recover audio</button>
+        </div>
+        <section id="welcome" class="welcome">
+          <div class="eyebrow">LESS TYPING. MORE LISTENING.</div>
+          <div class="welcome-mark" aria-hidden="true">
+            <svg viewBox="0 0 100 100">
+              <path d="M20 47h60c-2 21-12 31-30 31S22 68 20 47Z" />
+              <path d="M38 34c-10-12 10-12 0-24M59 34c-10-12 10-12 0-24" />
+              <path d="M34 84h32" />
+            </svg>
+          </div>
+          <h1>A little space<br />for your meetings.</h1>
+          <p>
+            Be in the conversation. Keep the good parts.<br />Private
+            transcripts and thoughtful notes, together.
+          </p>
+          <button id="welcome-new" class="primary">
+            Start a meeting <span aria-hidden="true">↗</span>
+          </button>
+          <div class="welcome-foot">
+            <span>○ No meeting bots</span><span>⌁ Local transcription</span
+            ><span>↗ Yours to export</span>
+          </div>
+        </section>
+        <section id="meeting" class="meeting" hidden>
+          <div class="document-heading">
+            <div class="eyebrow" id="meeting-date"></div>
+            <input
+              id="meeting-title"
+              aria-label="Meeting title"
+              maxlength="200"
+              placeholder="Untitled meeting"
+            />
+            <div class="meeting-meta">
+              <span id="meeting-meta"></span><span class="meta-dot">·</span
+              ><span id="privacy-label">Saved on this computer</span>
+            </div>
+          </div>
+          <div class="tabs" role="tablist" aria-label="Meeting views">
+            <button
+              role="tab"
+              aria-selected="true"
+              aria-controls="notes-panel"
+              id="notes-tab"
+              data-tab="notes"
+            >
+              My notes</button
+            ><button
+              role="tab"
+              aria-selected="false"
+              aria-controls="summary-panel"
+              id="summary-tab"
+              data-tab="summary"
+            >
+              Summary <span class="tiny-star">✧</span></button
+            ><button
+              role="tab"
+              aria-selected="false"
+              aria-controls="transcript-panel"
+              id="transcript-tab"
+              data-tab="transcript"
+            >
+              Transcript <span id="segment-count">0</span>
+            </button>
+          </div>
+          <div class="document-body">
+            <section
+              id="notes-panel"
+              role="tabpanel"
+              aria-labelledby="notes-tab"
+            >
+              <div class="editor-hint">
+                Just the things you want to remember. Oatmeal catches the rest.
+              </div>
+              <textarea
+                id="notes"
+                aria-label="Your meeting notes"
+                placeholder="A few thoughts, questions, or things to follow up on…"
+                spellcheck="true"
+              ></textarea>
+            </section>
+            <section
+              id="summary-panel"
+              role="tabpanel"
+              aria-labelledby="summary-tab"
+              hidden
+            >
+              <div class="section-toolbar">
+                <span id="summary-caption"
+                  >A clearer picture of the conversation.</span
+                ><button id="generate" class="primary small">
+                  ✧ Generate notes
+                </button>
+              </div>
+              <div id="summary-empty" class="panel-empty">
+                <span class="empty-symbol" aria-hidden="true">✧</span>
+                <h2>From conversation to clarity.</h2>
+                <p>
+                  Your notes and transcript become a summary,<br />decisions,
+                  and things to do next.
+                </p>
+              </div>
+              <article id="summary-output" class="markdown"></article>
+              <div class="ask-area">
+                <label for="question">Ask this meeting</label>
+                <div class="ask-row">
+                  <input
+                    id="question"
+                    placeholder="What did we decide?"
+                    maxlength="2000"
+                  /><button id="ask">Ask ↗</button>
+                </div>
+                <div id="answer" class="markdown" aria-live="polite"></div>
+              </div>
+            </section>
+            <section
+              id="transcript-panel"
+              role="tabpanel"
+              aria-labelledby="transcript-tab"
+              hidden
+            >
+              <div id="transcript-empty" class="panel-empty">
+                <span class="empty-symbol" aria-hidden="true">⌁</span>
+                <h2>The conversation, in your words.</h2>
+                <p>
+                  Start recording to see a local transcript.<br />Your
+                  microphone is “You”; meeting audio is “Room”.
+                </p>
+              </div>
+              <div id="transcript"></div>
+            </section>
+          </div>
+        </section>
+        <footer class="recording-bar">
+          <div class="capture-info">
+            <span id="record-dot" class="record-dot"></span>
+            <div>
+              <strong id="record-state">Your next good conversation.</strong
+              ><span id="record-detail">Start a meeting to begin.</span>
+            </div>
+            <time id="timer" hidden>00:00</time>
+          </div>
+          <div class="capture-actions">
+            <label class="system-toggle"
+              ><input id="system-audio" type="checkbox" checked /> Meeting
+              audio</label
+            ><button id="record" class="record-button" disabled>
+              <span aria-hidden="true">●</span> Record
+            </button>
+          </div>
+        </footer>
+      </main>
+    </div>
+    <dialog id="settings-dialog" aria-labelledby="settings-heading">
+      <form id="settings-form">
+        <div class="dialog-heading">
+          <div>
+            <div class="eyebrow">MAKE YOURSELF AT HOME</div>
+            <h2 id="settings-heading">Settings</h2>
+          </div>
+          <button
+            type="button"
+            id="settings-close"
+            class="close"
+            aria-label="Close settings"
+          >
+            ×
+          </button>
+        </div>
+        <div class="settings-scroll">
+          <section class="settings-section">
+            <h3>Meeting intelligence</h3>
+            <p>
+              Choose where your notes are written. Audio is always transcribed
+              on this computer.
+            </p>
+            <label for="provider">Provider</label
+            ><select
+              id="provider"
+              aria-describedby="provider-description"
+            ></select>
+            <p id="provider-description" class="field-help"></p>
+            <div id="model-field">
+              <label for="provider-model">Model ID</label
+              ><input
+                id="provider-model"
+                placeholder="Use the provider default"
+                maxlength="200"
+              />
+            </div>
+            <div id="publik-field" hidden>
+              <label for="publik-tier">AI tier</label>
+              <select id="publik-tier" aria-describedby="provider-description">
+                <option value="publik-fast">Fast · lowest cost</option>
+                <option value="publik-balanced">
+                  Balanced · everyday meetings
+                </option>
+                <option value="publik-smart">
+                  Smart · difficult questions (linked account)
+                </option>
+              </select>
+              <div id="publik-setup">
+                <p id="publik-disclosure" class="field-help"></p>
+                <button id="publik-enable" type="button">
+                  Accept &amp; set up publik API
+                </button>
+                <p class="field-help">
+                  Prefer another option? Choose a personal API key or a local
+                  model above.
+                </p>
+              </div>
+              <div id="publik-card" class="publik-card" hidden>
+                <strong id="publik-balance"></strong>
+                <p id="publik-cost" class="field-help"></p>
+                <p id="publik-usage" class="field-help"></p>
+                <button type="button" id="publik-link">
+                  Link this computer &amp; pick a plan
+                </button>
+              </div>
+              <button
+                type="button"
+                id="publik-refresh"
+                class="text-button"
+                hidden
+              >
+                Refresh balance
+              </button>
+              <p id="publik-status" class="field-help" role="status"></p>
+              <div id="publik-error" class="publik-error" role="alert" hidden>
+                <span id="publik-error-message"></span
+                ><button id="publik-error-link" type="button" hidden>
+                  Continue on publik ↗
+                </button>
+              </div>
+            </div>
+            <div id="key-field" hidden>
+              <label for="api-key"
+                ><span id="api-key-label">API key</span>
+                <span id="key-saved"></span></label
+              ><input
+                id="api-key"
+                type="password"
+                autocomplete="off"
+                placeholder="Paste your API key"
+                maxlength="2000"
+              />
+              <p class="field-help">
+                Encrypted using your operating system. Never included in
+                exports.
+              </p>
+              <button id="remove-key" type="button" class="text-button">
+                Remove saved key
+              </button>
+            </div>
+            <div id="subscription-field" hidden>
+              <div class="account-row">
+                <span id="account-status">Not connected</span
+                ><button type="button" id="connect">Sign in</button
+                ><button type="button" id="disconnect" hidden>Sign out</button>
+              </div>
+              <p class="field-help">
+                Sign in securely in your browser. Subscription usage follows
+                your provider’s current plan rules.
+              </p>
+            </div>
+            <div id="local-field">
+              <label for="local-model">Local text model</label
+              ><select id="local-model"></select>
+              <p class="field-help">
+                Local notes and answers select original meeting excerpts to
+                preserve facts. Larger models select more useful excerpts. CPU
+                processing can take a few minutes.
+              </p>
+              <button type="button" id="download-text">
+                Download &amp; load text model
+              </button>
+            </div>
+          </section>
+          <section class="settings-section">
+            <h3>Local transcription</h3>
+            <label for="speech-model">Speech model</label
+            ><select id="speech-model"></select>
+            <p class="field-help">
+              Downloaded once from Hugging Face, then available offline. Tiny is
+              fastest. Base and Small support multiple languages.
+            </p>
+            <button type="button" id="download-speech">
+              Download &amp; load speech model
+            </button>
+            <div id="model-progress" role="status"></div>
+          </section>
+          <section class="settings-section data-section">
+            <h3>Your data, your notebook.</h3>
+            <p>
+              Meetings stay on this device. Audio waiting for transcription is
+              kept temporarily for recovery, then deleted after saving the
+              transcript. Selecting a cloud provider sends meeting text when you
+              ask for AI help.
+            </p>
+            <button type="button" id="open-data" class="text-button">
+              Open meetings folder ↗</button
+            ><span id="version"></span>
+          </section>
+          <div id="settings-error" role="alert"></div>
+        </div>
+        <div class="dialog-footer">
+          <span>Changes apply when you save.</span
+          ><button class="primary" type="submit">Save settings</button>
+        </div>
+      </form>
+    </dialog>
+    <dialog id="consent-dialog">
+      <div class="dialog-heading"><h2>Send this meeting?</h2></div>
+      <p id="consent-copy"></p>
+      <p>
+        Only the meeting text and your notes are sent. Your selected provider’s
+        privacy and billing terms apply.
+      </p>
+      <div class="dialog-footer">
+        <button id="consent-cancel">Keep it local</button
+        ><button id="consent-accept" class="primary">Continue</button>
+      </div>
+    </dialog>
+    <dialog
+      id="publik-credit-dialog"
+      aria-labelledby="publik-credit-heading"
+      aria-describedby="publik-credit-message"
+    >
+      <div class="dialog-heading">
+        <h2 id="publik-credit-heading">Check your publik account</h2>
+        <button
+          id="publik-credit-close"
+          class="close"
+          aria-label="Close publik message"
+        >
+          ×
+        </button>
+      </div>
+      <p id="publik-credit-message"></p>
+      <div class="dialog-footer">
+        <button id="publik-credit-link" class="primary" hidden>
+          Continue on publik ↗</button
+        ><button id="publik-credit-settings">Change provider</button>
+      </div>
+    </dialog>
+    <script type="module" src="./app.js"></script>
+  </body>
+</html>
