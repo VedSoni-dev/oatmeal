@@ -43,7 +43,7 @@ test('no network on status, no provisioning without consent, one install for con
     requests++
     assert.ok(url.endsWith('/installs'))
     const body = JSON.parse(options.body)
-    assert.equal(body.app_slug, 'oatmeal')
+    assert.equal(body.app_slug, 'oatmeal-vedsoni-dev')
     assert.equal(body.disclosure_version, 1)
     return provisionResponse()
   })
@@ -163,6 +163,11 @@ test('wallet refresh stores linked balance; missing app token fails without netw
           balance_micros: 50000,
           claim_state: 'claimed',
           add_credit_url: 'https://publikhq.com/dashboard/api',
+          week: {
+            used_micros: 1250,
+            budget_micros: 1000000,
+            resets_at: '2026-10-12T14:23:03Z',
+          },
         }),
   )
   await client.provision(true)
@@ -170,6 +175,12 @@ test('wallet refresh stores linked balance; missing app token fails without netw
   assert.equal(status.claimState, 'claimed')
   assert.equal(status.addCreditUrl, 'https://publikhq.com/dashboard/api')
   assert.match(status.balance, /\$0.05/)
+  assert.equal(status.weekUsage, '$0.0013')
+  assert.equal(status.weekBudget, '$1.00')
+  assert.equal(
+    status.weekReset,
+    new Date('2026-10-12T14:23:03Z').toLocaleString(),
+  )
   const unavailable = await setup(
     () => {
       throw new Error('Must not call network')

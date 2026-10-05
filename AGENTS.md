@@ -6,6 +6,7 @@
 - Do not read `.env` files or print authentication credentials.
 
 ## publik API
+- App slug: `oatmeal-vedsoni-dev` (the `oatmeal` listing belongs to another repository)
 - Base URL: https://publikhq.com/api/v1 (OpenAI Chat Completions, Responses, Anthropic Messages)
 - Models: publik-fast, publik-balanced, publik-smart only; never a vendor model name
 - Key: per-install `pk_` from POST /installs, stored at the publik credential path; env PUBLIK_API_KEY / PUBLIK_API_BASE_URL override

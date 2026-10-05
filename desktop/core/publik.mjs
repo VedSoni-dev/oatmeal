@@ -8,7 +8,7 @@ import { dirname, join } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { atomicWrite } from './store.mjs'
 
-export const APP_SLUG = 'oatmeal'
+export const APP_SLUG = 'oatmeal-vedsoni-dev'
 export const APP_VERSION = '2.0.0'
 export const DEFAULT_BASE_URL = 'https://publikhq.com/api/v1'
 export const TIERS = ['publik-fast', 'publik-balanced', 'publik-smart']
@@ -318,12 +318,23 @@ export class PublikClient {
     const patch = {}
     if (Number.isFinite(wallet.balance_micros))
       this.balanceMicros = patch.balance_micros = wallet.balance_micros
-    if (['claimed', 'anonymous'].includes(body.claim_state))
-      patch.claim_state = body.claim_state
-    if (publikLink(body.claim_url)) patch.claim_url = publikLink(body.claim_url)
+    if (['claimed', 'anonymous'].includes(wallet.claim_state))
+      patch.claim_state = wallet.claim_state
+    if (publikLink(wallet.claim_url))
+      patch.claim_url = publikLink(wallet.claim_url)
     if (publikLink(wallet.add_credit_url))
       patch.add_credit_url = publikLink(wallet.add_credit_url)
     this.accountMetadata = { ...this.accountMetadata, ...patch }
+    if (Number.isFinite(wallet.week?.used_micros))
+      this.meter.weekUsage = `$${(wallet.week.used_micros / 1_000_000).toFixed(4)}`
+    if (Number.isFinite(wallet.week?.budget_micros))
+      this.meter.weekBudget = `$${(wallet.week.budget_micros / 1_000_000).toFixed(2)}`
+    else if (wallet.week?.budget_micros === null) delete this.meter.weekBudget
+    if (
+      typeof wallet.week?.resets_at === 'string' &&
+      Number.isFinite(Date.parse(wallet.week.resets_at))
+    )
+      this.meter.weekReset = new Date(wallet.week.resets_at).toLocaleString()
     if (provider.credential && Object.keys(patch).length)
       await this.updateCredential(patch)
     const status = await this.status(userKey)

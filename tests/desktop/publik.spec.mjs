@@ -35,7 +35,9 @@ test('publik: consent, balance, 402 action and successful retry across the secur
               balance_micros: 0,
               claim_state: 'anonymous',
               claim_url: 'https://publikhq.com/claim/test',
-              disclosure: { cost: 'Exact cost sentence from the service.' },
+              disclosure: {
+                cost: 'oatmeal-vedsoni-dev runs on publik API by default: the AI model behind it is run by a provider that charges per use, and publik charges a fixed, published price for it \u2014 above what the model costs publik, with the difference shared with the developer who built oatmeal-vedsoni-dev \u2014 from your publik balance. A new computer starts at $0.00 and no card is asked for: linking this computer to your publik account gives $0.05 of free use, once, and a plan, a pack or your own key takes it from there; nothing is charged behind your back, and when the balance runs out oatmeal-vedsoni-dev tells you and keeps working with your own key \u2014 most people spend under $2 a month.',
+              },
             },
             { status: 201 },
           )
@@ -106,7 +108,7 @@ test('publik: consent, balance, 402 action and successful retry across the secur
       '$0.00 until linked',
     )
     await expect(page.locator('#publik-cost')).toHaveText(
-      'Exact cost sentence from the service.',
+      'oatmeal-vedsoni-dev runs on publik API by default: the AI model behind it is run by a provider that charges per use, and publik charges a fixed, published price for it \u2014 above what the model costs publik, with the difference shared with the developer who built oatmeal-vedsoni-dev \u2014 from your publik balance. A new computer starts at $0.00 and no card is asked for: linking this computer to your publik account gives $0.05 of free use, once, and a plan, a pack or your own key takes it from there; nothing is charged behind your back, and when the balance runs out oatmeal-vedsoni-dev tells you and keeps working with your own key \u2014 most people spend under $2 a month.',
     )
     await expect(
       page.getByRole('button', { name: 'Link this computer & pick a plan' }),

@@ -15,7 +15,7 @@ Listen to the conversation, jot down a few thoughts, and turn a local transcript
 - ChatGPT sign-in through the official Codex runtime; Claude sign-in and generation through the official Claude Agent SDK.
 - Optional Ollama integration and interrupted-recording recovery.
 
-**Status:** active development. Mac development builds and automated tests are available. Windows installer configuration and CI are included; Windows hardware audio/sign-in verification is still required. Published, signed installers are not available yet. Publik's desktop integration is implemented; public app-token registration and a live proof call still require browser authorization.
+**Status:** active development. Mac development builds and automated tests are available. Windows installer configuration and CI are included; Windows hardware audio/sign-in verification is still required. Published, signed installers are not available yet. Publik's desktop integration and public app token are included. New installations must link their account and have sufficient credit before making AI requests.
 
 ## Run from source
 
