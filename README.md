@@ -1,193 +1,134 @@
 <div align="center">
 
-# 🥣 Oatmeal
+<img src="docs/assets/oatmeal-icon.svg" width="88" height="88" alt="Oatmeal bowl icon" />
 
-**Your coding agent is your meeting notetaker.**
+# Oatmeal
 
-[![License: MIT](https://img.shields.io/badge/License-MIT-b48455.svg)](LICENSE)
-[![Local First](https://img.shields.io/badge/audio-never%20leaves%20your%20machine-2ea44f)](#privacy)
-[![No Cloud](https://img.shields.io/badge/cloud-none-critical)](#how-it-works)
-[![Works With](https://img.shields.io/badge/works%20with-Claude%20Code%20·%20Cursor%20·%20Codex-8a63d2)](#quickstart)
-[![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](#contributing)
+### A little more present.
 
-*An open-source Granola alternative with a twist: there is no app.
-A tiny local recorder transcribes your meetings with Whisper — and the AI you
-already pay for (Claude Code, Cursor, Codex…) writes the notes, answers questions,
-and keeps your team's knowledge base in sync. No bots joining calls. No accounts.
-No API keys. No cloud.*
+An open-source meeting notebook with local transcription and your choice of AI.<br />Listen, jot down a thought, and leave with the details that matter.
+
+[![License: MIT](https://img.shields.io/badge/license-MIT-697558?style=flat-square)](LICENSE) [![Local transcription](https://img.shields.io/badge/transcription-on_your_computer-697558?style=flat-square)](#your-meetings-your-choice) [![Desktop preview](https://img.shields.io/badge/macOS_%2B_Windows-desktop_preview-b85b37?style=flat-square)](#try-oatmeal)
+
+**[Try Oatmeal](#try-oatmeal)** · **[Watch the demo](#a-meeting-in-ten-seconds)** · **[On Publik ↗](https://publikhq.com/oatmeal-vedsoni-dev)** · **[Road to release](https://github.com/VedSoni-dev/oatmeal/pull/2)**
+
+<img src="docs/assets/oatmeal-notebook.png" width="1180" alt="Oatmeal’s desktop notebook showing a Product sync meeting, its summary, decisions, and next steps beside a searchable meeting library." />
+
+<sub>The actual desktop preview. Example meeting with fictional content.</sub>
 
 </div>
 
----
+## A notebook that listens
 
-## How it works
+Your meeting is the main event. Oatmeal keeps a local transcript while you take the few notes that matter, then helps you find the decisions, commitments, and next steps.
 
-```
-you, in a meeting ──► localhost:4123 recorder
-                       mic + system audio → Whisper (local, WebGPU)
-                                │
-                                ▼
-                    meetings/2026-07-18-standup.transcript.md   (streams live)
-                                │
-        "write up my meeting"   ▼
-                       your coding agent
-                                │
-                                ▼
-                    meetings/2026-07-18-standup.notes.md
-                                │
-                                ▼
-                    git commit → push → 🧠 team knowledge base
-```
+**Capture the conversation.** Record your microphone and optional meeting audio. Whisper transcribes on your computer. No bot joins the call.
 
-No bot joins your call. The recorder listens to *your* machine — your mic plus the
-system audio you already hear — captured as two separate tracks, transcribed
-separately, and tagged **You** / **Room** in the transcript. Your agent does
-everything intelligent with the result.
+**Add your perspective.** Write in a clean notebook while the conversation flows. Notes save automatically.
 
-## Quickstart
+**Keep what matters.** Make a summary, ask about the meeting, search your library, or export everything as Markdown.
 
-```bash
-git clone https://github.com/VedSoni-dev/oatmeal.git
+## A meeting in ten seconds
+
+![Oatmeal demo moving from personal notes to the You/Room transcript and then to a concise meeting summary.](docs/assets/oatmeal-demo.gif)
+
+<sub>UI walkthrough with fictional notes, transcript, and a prepared summary. Generation and recording are not shown.</sub>
+
+## Your meetings, your choice
+
+**Audio is transcribed locally.** Choose where the text goes when you ask for AI help.
+
+<table>
+<tr>
+<td align="center" width="25%"><a href="https://claude.com"><picture><source media="(prefers-color-scheme: dark)" srcset="docs/assets/logos/claude-light.svg" /><img src="docs/assets/logos/claude.svg" width="32" height="32" alt="Claude" /></picture><br /><strong>Claude</strong></a></td>
+<td align="center" width="25%"><a href="https://openrouter.ai"><picture><source media="(prefers-color-scheme: dark)" srcset="docs/assets/logos/openrouter-light.svg" /><img src="docs/assets/logos/openrouter.svg" width="32" height="32" alt="OpenRouter" /></picture><br /><strong>OpenRouter</strong></a></td>
+<td align="center" width="25%"><a href="https://ollama.com"><picture><source media="(prefers-color-scheme: dark)" srcset="docs/assets/logos/ollama-light.svg" /><img src="docs/assets/logos/ollama.svg" width="32" height="32" alt="Ollama" /></picture><br /><strong>Ollama</strong></a></td>
+<td align="center" width="25%"><a href="https://huggingface.co/docs/transformers.js"><picture><source media="(prefers-color-scheme: dark)" srcset="docs/assets/logos/huggingface-light.svg" /><img src="docs/assets/logos/huggingface.svg" width="32" height="32" alt="Hugging Face" /></picture><br /><strong>Local models</strong></a></td>
+</tr>
+</table>
+
+| Option | How it works |
+| --- | --- |
+| **On this computer** | Download Whisper for speech and Qwen for text. Work offline after the downloads, with no account or usage bill. Small local text models select original meeting excerpts to preserve facts. |
+| **ChatGPT subscription** | Sign in through the official Codex runtime. Your plan’s Codex limits apply. |
+| **Claude subscription** | Sign in through the official Claude Agent SDK. Eligibility and usage follow your Claude plan. |
+| **Your API key** | Connect OpenAI, Claude, Grok, or OpenRouter. Keys saved in Settings use operating-system encryption. |
+| **Publik API** | Choose Fast, Balanced, or Smart. Link an account and use a shared Publik balance; the app shows costs and account links. A fresh install starts at $0.00. |
+| **Ollama** | Connect to an existing local Ollama server and choose your model. |
+
+Cloud requests require confirmation. Raw audio stays on your computer. Cloud providers receive meeting text only when you ask them for AI help. [Read the privacy and account details →](docs/desktop-guide.md#privacy-and-accounts)
+
+## Try Oatmeal
+
+**The desktop app is a development preview in [PR #2](https://github.com/VedSoni-dev/oatmeal/pull/2).** Apple Silicon development builds have been tested. Windows and Intel Mac packaging are configured, with platform validation still pending. Signed public installers are not available yet.
+
+With **Node.js 22+**, run:
+
+```sh
+git clone --branch codex/desktop-app https://github.com/VedSoni-dev/oatmeal.git
 cd oatmeal
+npm ci
+npm start
 ```
 
-Then paste one line into your coding agent:
+Oatmeal opens in its own desktop window. No coding agent or separate local model server is needed.
 
-> **Read SKILL.md and set up Oatmeal for me.**
-
-That's the whole install. The agent installs deps, starts the recorder, opens
-http://localhost:4123, and tells you how to record. (Claude Code auto-discovers the
-skill via `.claude/skills/` — mentioning meetings is enough.)
-
-When a meeting starts: hit **Record**, share **Entire screen** with **"share system
-audio" checked** (window shares carry no audio). When it ends, tell your agent:
-
-> **write up my meeting**
-
-You get summary, key points, decisions, and action items — committed to git if the
-repo has a remote.
+1. **Set up your models.** Open Settings and download a speech model. Choose local text, a subscription, Publik, or your own API key.
+2. **Start a meeting.** Give it a name, press Record, and let participants know you’re taking notes. Turn on Meeting audio to include the other side of a call.
+3. **Make it useful.** Add a few notes, stop recording, and choose Summary → Generate notes. Export when you’re ready.
 
 <details>
-<summary>Manual setup (no agent)</summary>
+<summary><strong>Build a Mac or Windows installer</strong></summary>
 
-```bash
-npm install
-npm start          # recorder at http://localhost:4123
+Run on the matching operating system and architecture:
+
+```sh
+npm run build:mac   # .app, .dmg, .zip — macOS 14.2+
+npm run build:win   # NSIS installer — Windows 10/11 x64
 ```
 
-Transcripts land in `meetings/` as plain Markdown. Bring any tool you like.
+Local builds are development artifacts. See [signing and release setup](https://github.com/VedSoni-dev/oatmeal/blob/codex/desktop-app/docs/RELEASING.md) before distributing them. Real subscription sign-in, platform audio permissions, and long meetings still need release validation; [verification status](https://github.com/VedSoni-dev/oatmeal/blob/codex/desktop-app/docs/VERIFICATION.md) records what was actually tested.
+
 </details>
 
-## Claude Code superpowers
+## Bring your coding agent
 
-Cloning the repo IS the install. Claude Code picks all of this up automatically:
+The original browser recorder and Markdown workflow are still here. Work with meeting files in **Cursor, Claude Code, Codex, or another MCP client**.
 
-| You type | What happens |
-|---|---|
-| `/meeting` | Recorder starts (if needed) and opens in your browser — for when you're 2 minutes out |
-| `/writeup` | Latest transcript becomes polished notes: summary, decisions, action items — committed & pushed |
-| `/recall what did we tell Acme about pricing?` | Grounded answer from every meeting in the knowledge base, with file citations |
-| `/prep akrit` | Pre-meeting brief: what you discussed last time, open action items, promises made, suggested agenda |
+<table>
+<tr>
+<td align="center" width="33%"><a href="https://cursor.com"><picture><source media="(prefers-color-scheme: dark)" srcset="docs/assets/logos/cursor-light.svg" /><img src="docs/assets/logos/cursor.svg" width="36" height="36" alt="Cursor" /></picture><br /><strong>Cursor</strong><br /><sub>MCP + Markdown</sub></a></td>
+<td align="center" width="33%"><a href="https://claude.com/product/claude-code"><picture><source media="(prefers-color-scheme: dark)" srcset="docs/assets/logos/claude-light.svg" /><img src="docs/assets/logos/claude.svg" width="36" height="36" alt="Claude" /></picture><br /><strong>Claude Code</strong><br /><sub>Skills + MCP</sub></a></td>
+<td align="center" width="33%"><a href="https://developers.openai.com/codex"><img src="docs/assets/logos/openai.png" width="36" height="36" alt="OpenAI" /><br /><strong>Codex</strong><br /><sub>MCP + Markdown</sub></a></td>
+</tr>
+</table>
 
-And two things you never type:
+The MCP server exposes `list_meetings`, `search_meetings`, and `get_meeting` for Markdown files. Export desktop meetings into the folder you configure for MCP; it does not automatically read the desktop database. **[Agent setup guide →](docs/agent-workflow.md)**
 
-- **It notices unwritten meetings.** A `SessionStart` hook checks for transcripts
-  with no notes — open Claude Code after a call and it offers the write-up before
-  you ask.
-- **MCP auto-registers.** [`.mcp.json`](.mcp.json) exposes `list_meetings` /
-  `search_meetings` / `get_meeting` to any MCP client the moment you open the repo.
+## Built to stay yours
 
-(Other agents: same flows work by asking in plain English — the commands are just
-markdown files in [`.claude/commands/`](.claude/commands/), readable by anything.)
+- **Plain Markdown exports.** Take your notes and transcripts to another tool whenever you want.
+- **Local storage.** Meetings stay in your application data folder. Pending audio is saved temporarily for recovery, then deleted after transcription succeeds.
+- **Recoverable recordings.** Interrupted transcription can resume from saved audio chunks.
+- **Open source.** Inspect the code, change the prompts, add a provider, or build your own version.
 
-## The team knowledge base
+Meeting files are not encrypted by the app. System-audio capture depends on the OS, permissions, and chosen source. You/Room separates audio lanes, not individual remote speakers.
 
-**Sharing = git.** No sync server, no org accounts, no per-seat pricing:
+## Make it better
 
-1. Your team creates one repo — say `team-knowledge` — with a `meetings/` folder.
-2. Everyone clones it and points their recorder at it
-   (`OATMEAL_MEETINGS_DIR=<clone>/meetings npm start`).
-3. After each meeting, each person's agent commits + pushes their notes there
-   (the skill does this automatically when a remote exists).
-4. Everyone's agent `git pull`s and can answer from *anyone's* meetings:
+<p><a href="https://www.electronjs.org"><picture><source media="(prefers-color-scheme: dark)" srcset="docs/assets/logos/electron-light.svg" /><img src="docs/assets/logos/electron.svg" width="24" height="24" alt="Electron" /></picture></a> Built on Electron, with local models powered by Transformers.js.</p>
 
-> *"What did we tell Acme about pricing last month?"*
-> *"List every action item assigned to me this week."*
-> *"Summarize all the decisions from sprint planning meetings."*
+Bug reports, thoughtful design feedback, and pull requests are welcome. Include your OS, provider, and steps to reproduce; keep meeting content and credentials out of public issues.
 
-Access control is your git host's access control. History is the git log. Deleting
-a note is a commit. Compliance export is `git archive`. It's boring — that's the point.
+On the desktop preview branch:
 
-## Runs without the agent open
-
-The recorder and calendar watcher are **background services**, not agent tasks — your
-coding agent doesn't need to stay open for any of this to work day to day.
-
-```bash
-node scripts/install-autostart.mjs
+```sh
+npm test
+npm run test:desktop
 ```
 
-Registers the recorder as a real background service — a Startup-folder entry on
-Windows, a LaunchAgent on macOS, `systemd --user` on Linux — with **no admin rights
-and no permission prompts**. Starts at every login, keeps running. Your agent runs
-this **once**; after that, closing your terminal or Claude Code doesn't stop it.
+[Desktop guide](docs/desktop-guide.md) · [Architecture](https://github.com/VedSoni-dev/oatmeal/blob/codex/desktop-app/docs/ARCHITECTURE.md) · [Release checklist](https://github.com/VedSoni-dev/oatmeal/blob/codex/desktop-app/docs/RELEASING.md) · [Report an issue](https://github.com/VedSoni-dev/oatmeal/issues)
 
-### Calendar automation
+---
 
-If your coding agent has (or can add) a Google/Outlook Calendar connector, just ask
-it to wire your calendar into Oatmeal — one click of OAuth, nothing to paste.
-
-No calendar connector? One URL, no OAuth:
-
-```bash
-cp oatmeal.config.example.json oatmeal.config.json
-# paste your calendar's ICS feed URL (Google Calendar → Settings → your calendar
-# → "Secret address in iCal format")
-node scripts/install-autostart.mjs   # re-run: also installs the calendar watcher
-```
-
-From then on, with zero agent involvement: a standalone script checks your calendar
-every 5 minutes and opens the recorder in your browser ~7 minutes before each
-meeting. You just hit Record. Your agent's only jobs are the one-time install and
-writing up notes afterward.
-
-## What's in the repo
-
-| Path | What it is |
-|---|---|
-| [`SKILL.md`](SKILL.md) | The product spec your agent follows — setup, notes flow, knowledge base rules, calendar automation |
-| [`capture/`](capture/) | Zero-dependency local server + recorder page — mic + system loopback, in-browser Whisper (WebGPU, pick tiny/base/small), live You/Room transcript, built-in meeting viewer |
-| [`meetings/`](meetings/) | Your transcripts + notes. Plain Markdown. Yours. |
-| [`scripts/mcp-server.mjs`](scripts/mcp-server.mjs) | Optional MCP server — expose meetings to any MCP client |
-| [`scripts/install-autostart.mjs`](scripts/install-autostart.mjs) | Registers the recorder (+ calendar watcher) as a background OS service |
-| [`scripts/calendar-watch.mjs`](scripts/calendar-watch.mjs) | Standalone ICS calendar poller — opens the recorder before meetings, no agent needed |
-| [`.claude/skills/`](.claude/skills/) | Auto-discovery so Claude Code picks up the skill on clone |
-
-## Privacy
-
-- Transcription is **local** — Whisper runs in your browser (one-time ~80 MB model
-  download, then fully offline). Audio is never stored or uploaded anywhere.
-- Transcripts are plain files on your disk. The only network hop is the git remote
-  **you** choose — or none.
-- The AI that reads your transcripts is the coding agent you already use and trust.
-- Recording people has consent rules that vary by place. Tell attendees you're
-  taking notes.
-
-## Contributing
-
-PRs welcome. The codebase is intentionally tiny (~500 lines, zero server deps):
-if you can read `capture/server.mjs` and `capture/public/app.js`, you've read the
-whole thing.
-
-**Good first issues:**
-- Smarter meeting-title detection (from calendar or first few words)
-- Calendar connector recipes (Google, Outlook, Slack integration guides)
-- **Full multi-person diarization** (mic vs system audio are already tagged "You"/"Room" — telling apart two+ people on the *other* end of the call would need Pyannote or similar)
-- Better error messages (when Whisper fails, when git push fails, etc.)
-
-**Not in scope:** cloud sync, accounts, compliance features (fine-grained audit logs), multi-language models beyond Whisper's baseline. Those belong in derivatives, not core.
-
-## License
-
-MIT © Vedant Soni — free forever. Everything the paid notetakers charge for is a
-git repo and an agent prompt away.
+MIT © Vedant Soni. An independent Granola alternative. [WhimprFlow](https://github.com/Blueturboguy07/WhimprFlow) inspired the platform and release patterns. Product names and logos identify the tools and services described; they belong to their respective owners and do not imply endorsement. [Asset credits](docs/assets/README.md)
