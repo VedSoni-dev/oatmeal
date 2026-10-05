@@ -211,12 +211,12 @@
         </footer>
       </main>
     </div>
-    <dialog id="settings-dialog">
+    <dialog id="settings-dialog" aria-labelledby="settings-heading">
       <form id="settings-form">
         <div class="dialog-heading">
           <div>
             <div class="eyebrow">MAKE YOURSELF AT HOME</div>
-            <h2>Settings</h2>
+            <h2 id="settings-heading">Settings</h2>
           </div>
           <button
             type="button"
@@ -235,7 +235,10 @@
               on this computer.
             </p>
             <label for="provider">Provider</label
-            ><select id="provider"></select>
+            ><select
+              id="provider"
+              aria-describedby="provider-description"
+            ></select>
             <p id="provider-description" class="field-help"></p>
             <div id="model-field">
               <label for="provider-model">Model ID</label
@@ -245,8 +248,55 @@
                 maxlength="200"
               />
             </div>
+            <div id="publik-field" hidden>
+              <label for="publik-tier">AI tier</label>
+              <select id="publik-tier" aria-describedby="provider-description">
+                <option value="publik-fast">Fast · lowest cost</option>
+                <option value="publik-balanced">
+                  Balanced · everyday meetings
+                </option>
+                <option value="publik-smart">
+                  Smart · difficult questions (linked account)
+                </option>
+              </select>
+              <div id="publik-setup">
+                <p id="publik-disclosure" class="field-help"></p>
+                <button id="publik-enable" type="button">
+                  Accept &amp; set up publik API
+                </button>
+                <p class="field-help">
+                  Prefer another option? Choose a personal API key or a local
+                  model above.
+                </p>
+              </div>
+              <div id="publik-card" class="publik-card" hidden>
+                <strong id="publik-balance"></strong>
+                <p id="publik-cost" class="field-help"></p>
+                <p id="publik-usage" class="field-help"></p>
+                <button type="button" id="publik-link">
+                  Link this computer &amp; pick a plan
+                </button>
+              </div>
+              <button
+                type="button"
+                id="publik-refresh"
+                class="text-button"
+                hidden
+              >
+                Refresh balance
+              </button>
+              <p id="publik-status" class="field-help" role="status"></p>
+              <div id="publik-error" class="publik-error" role="alert" hidden>
+                <span id="publik-error-message"></span
+                ><button id="publik-error-link" type="button" hidden>
+                  Continue on publik ↗
+                </button>
+              </div>
+            </div>
             <div id="key-field" hidden>
-              <label for="api-key">API key <span id="key-saved"></span></label
+              <label for="api-key"
+                ><span id="api-key-label">API key</span>
+                <span id="key-saved"></span></label
               ><input
                 id="api-key"
                 type="password"
@@ -329,6 +379,28 @@
       <div class="dialog-footer">
         <button id="consent-cancel">Keep it local</button
         ><button id="consent-accept" class="primary">Continue</button>
+      </div>
+    </dialog>
+    <dialog
+      id="publik-credit-dialog"
+      aria-labelledby="publik-credit-heading"
+      aria-describedby="publik-credit-message"
+    >
+      <div class="dialog-heading">
+        <h2 id="publik-credit-heading">Check your publik account</h2>
+        <button
+          id="publik-credit-close"
+          class="close"
+          aria-label="Close publik message"
+        >
+          ×
+        </button>
+      </div>
+      <p id="publik-credit-message"></p>
+      <div class="dialog-footer">
+        <button id="publik-credit-link" class="primary" hidden>
+          Continue on publik ↗</button
+        ><button id="publik-credit-settings">Change provider</button>
       </div>
     </dialog>
     <script type="module" src="./app.js"></script>

@@ -11,10 +11,11 @@ Listen to the conversation, jot down a few thoughts, and turn a local transcript
 - Downloadable Whisper speech models and Qwen text models. No separate local runtime required.
 - Summaries, decisions, action items, and questions about a meeting.
 - OpenAI, Claude, Grok, and OpenRouter API keys, encrypted using the operating system.
+- Publik API with Fast, Balanced and Smart tiers, consent-based setup, balance and account linking.
 - ChatGPT sign-in through the official Codex runtime; Claude sign-in and generation through the official Claude Agent SDK.
 - Optional Ollama integration and interrupted-recording recovery.
 
-**Status:** active development. Mac development builds and automated tests are available. Windows installer configuration and CI are included; Windows hardware audio/sign-in verification is still required. Published, signed installers are not available yet. Publik integration is pending the builder approval and app-token setup required by its integration guide.
+**Status:** active development. Mac development builds and automated tests are available. Windows installer configuration and CI are included; Windows hardware audio/sign-in verification is still required. Published, signed installers are not available yet. Publik's desktop integration is implemented; public app-token registration and a live proof call still require browser authorization.
 
 ## Run from source
 
@@ -35,6 +36,8 @@ The app opens in its own desktop window. No coding agent, browser server, Rust t
 4. Jot down thoughts while the transcript is captured. Stop and choose **Summary → Generate notes**.
 
 Models download from Hugging Face only when requested. Local inference runs on CPU; larger models and long recordings need more memory and time. Built-in local notes and answers select original meeting excerpts to preserve facts; cloud providers produce fuller narrative summaries. API model availability depends on your account; model IDs are editable.
+
+For **publik API**, choose a tier (Fast is the lowest-cost default), accept the disclosure, then use **Link this computer & pick a plan**. An install starts at $0.00; the first account link provides $0.05 of free use once. The app shows the service's cost disclosure and balance. You can instead paste your own publik key, choose another personal API provider, or use local models. Provisioned publik keys stay in its per-app credential file with restricted permissions; they are never exposed to the app's web UI. See [Publik setup](docs/ARCHITECTURE.md#publik-api) for builder configuration.
 
 ## Platforms and builds
 

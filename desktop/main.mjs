@@ -32,6 +32,7 @@ import {
 } from './core/providers.mjs'
 import { CodexSubscription, ClaudeSubscription } from './core/subscriptions.mjs'
 import { localNotes, localAnswer } from './core/local-notes.mjs'
+import { PublikClient, TIERS } from './core/publik.mjs'
 
 const here = dirname(fileURLToPath(import.meta.url))
 const UI_URL = 'oatmeal://app/index.html'
@@ -56,6 +57,7 @@ let window,
   llm,
   codex,
   claude,
+  publik,
   recordingId,
   sleepBlocker,
   root
@@ -88,6 +90,7 @@ function handle(name, fn) {
       return {
         error: error.message || 'The operation failed. Please retry.',
         actionUrl: error.actionUrl,
+        status: error.status,
       }
     }
   })
@@ -174,6 +177,13 @@ function queuePacket(file) {
 }
 
 async function completion(provider, model, system, prompt) {
+  if (provider === 'publik')
+    return publik.complete({
+      userKey: await settings.key('publik'),
+      model: model || 'publik-fast',
+      system,
+      prompt,
+    })
   if (provider === 'local')
     return llm.run('generate', {
       name: (await settings.read()).localModel || 'small',
@@ -193,6 +203,13 @@ async function completion(provider, model, system, prompt) {
 }
 
 function registerHandlers() {
+  handle('publik:status', async () =>
+    publik.status(await settings.key('publik')),
+  )
+  handle('publik:enable', (accepted) => publik.provision(accepted))
+  handle('publik:wallet', async () =>
+    publik.wallet(await settings.key('publik')),
+  )
   handle('app:bootstrap', async () => ({
     meetings: await meetings.list(),
     settings: await settings.public(),
@@ -253,6 +270,12 @@ function registerHandlers() {
     if (!update || !PROVIDERS[update.provider])
       throw new Error('Choose a valid provider')
     if (update.model !== undefined) text(update.model, 200)
+    if (
+      update.provider === 'publik' &&
+      update.model &&
+      !TIERS.includes(update.model)
+    )
+      throw new Error('Choose a publik tier from the list.')
     if (update.apiKey !== undefined) text(update.apiKey, 2000)
     if (update.speechModel && !SPEECH_MODELS[update.speechModel])
       throw new Error('Unknown speech model')
@@ -497,6 +520,12 @@ else {
       meetings = await new MeetingStore(join(root, 'meetings')).init()
       await meetings.recover()
       settings = new SettingsStore(root, safeStorage)
+      publik = new PublikClient({
+        ...(process.env.OATMEAL_TEST_DATA
+          ? { path: join(root, 'publik-test-credential.json') }
+          : {}),
+        notify: (data) => emit('publik:updated', data),
+      })
       asr = new Inference(join(root, 'models'), (data) =>
         emit('model:progress', data),
       )

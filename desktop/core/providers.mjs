@@ -1,4 +1,11 @@
 export const PROVIDERS = {
+  publik: {
+    label: 'publik API',
+    model: 'publik-fast',
+    key: true,
+    description:
+      'Built-in AI, priced per use in dollars. Start with Fast, or choose a stronger tier for harder meetings. No API key required.',
+  },
   local: {
     label: 'On this computer',
     model: '',

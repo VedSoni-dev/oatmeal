@@ -12,6 +12,31 @@
   background: var(--paper);
   font-size: 14px;
 }
+.publik-card {
+  margin: 16px 0;
+  padding: 16px;
+  background: var(--selected);
+  border: 1px solid #8b927e;
+  border-radius: 8px;
+}
+.publik-card strong {
+  display: block;
+  font-size: 15px;
+  margin-bottom: 10px;
+}
+.publik-card button {
+  margin: 5px 8px 5px 0;
+}
+.publik-error {
+  font-size: 12px;
+  line-height: 1.7;
+  color: #8b3a1e;
+  margin: 12px 0;
+}
+.publik-error button {
+  display: block;
+  margin-top: 8px;
+}
 * {
   box-sizing: border-box;
 }

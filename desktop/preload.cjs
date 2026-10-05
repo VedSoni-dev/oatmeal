@@ -16,6 +16,7 @@ const events = new Set([
   'app:error',
   'app:new-meeting',
   'app:settings',
+  'publik:updated',
 ])
 contextBridge.exposeInMainWorld('oatmeal', {
   bootstrap: () => call('app:bootstrap'),
@@ -24,13 +25,17 @@ contextBridge.exposeInMainWorld('oatmeal', {
   exportMeeting: (id) => call('meeting:export', id),
   importMeetings: () => call('meeting:import'),
   saveSettings: (data) => call('settings:save', data),
+  publikStatus: () => call('publik:status'),
+  enablePublik: (accepted) => ipcRenderer.invoke('publik:enable', accepted),
+  publikWallet: () => ipcRenderer.invoke('publik:wallet'),
   loadModel: (data) => call('model:load', data),
   startCapture: (id) => call('capture:start', id),
   sendChunk: (data) => call('capture:chunk', data),
   stopCapture: (id) => call('capture:stop', id),
   recoverAudio: () => call('capture:recover'),
-  generate: (data) => call('meeting:generate', data),
-  ask: (data) => call('meeting:ask', data),
+  // Keep error metadata in a plain envelope: contextBridge drops custom Error fields.
+  generate: (data) => ipcRenderer.invoke('meeting:generate', data),
+  ask: (data) => ipcRenderer.invoke('meeting:ask', data),
   login: (provider) => call('auth:login', provider),
   authStatus: (provider) => call('auth:status', provider),
   logout: (provider) => call('auth:logout', provider),

@@ -25,11 +25,36 @@ const providerLabel = (id) =>
     openrouter: 'OpenRouter',
     ollama: 'Ollama',
     grok: 'Grok',
+    publik: 'publik',
   })[id] || id
 
 function notice(message) {
   $('notice-text').textContent = message
   $('notice').hidden = false
+}
+async function resultOf(promise) {
+  const result = await promise
+  if (result.error) {
+    const error = new Error(result.error)
+    error.actionUrl = result.actionUrl
+    error.status = result.status
+    throw error
+  }
+  return result.value
+}
+function aiError(error) {
+  if (state.settings.provider === 'publik' && error.status === 402) {
+    $('publik-credit-message').textContent = error.message
+    $('publik-credit-link').hidden = !error.actionUrl
+    $('publik-credit-link').onclick = () =>
+      api.openLink(error.actionUrl).catch((e) => notice(e.message))
+    $('publik-credit-dialog').showModal()
+  } else notice(error.message)
+}
+$('publik-credit-close').onclick = () => $('publik-credit-dialog').close()
+$('publik-credit-settings').onclick = () => {
+  $('publik-credit-dialog').close()
+  showSettings()
 }
 $('notice-dismiss').onclick = () => {
   $('notice').hidden = true
@@ -406,10 +431,10 @@ $('generate').onclick = async () => {
     generation = true
     renderMeeting()
     captureStatus('Writing notes. Your transcript is already saved.')
-    upsert(await api.generate({ id, consent: true }))
+    upsert(await resultOf(api.generate({ id, consent: true })))
     renderMeeting()
   } catch (error) {
-    notice(error.message)
+    aiError(error)
   } finally {
     generation = false
     renderMeeting()
@@ -427,10 +452,10 @@ $('ask').onclick = async () => {
     renderMeeting()
     captureStatus()
     $('answer').textContent = 'Looking through this meeting…'
-    const answer = await api.ask({ id, question, consent: true })
+    const answer = await resultOf(api.ask({ id, question, consent: true }))
     if (current.id === id) renderMarkdown($('answer'), answer)
   } catch (error) {
-    notice(error.message)
+    aiError(error)
     $('answer').textContent = ''
   } finally {
     generation = false
@@ -483,13 +508,26 @@ async function providerFields() {
     'Meeting text is sent to this provider only when you request AI help. API usage is billed separately from chat subscriptions.'
   $('provider-model').value = state.settings.models?.[id] || config.model || ''
   $('api-key').value = ''
+  $('api-key-label').textContent =
+    id === 'publik' ? 'Your own publik API key (optional)' : 'API key'
   $('key-saved').textContent = state.settings.savedKeys?.includes(id)
     ? 'Saved securely'
     : ''
   $('remove-key').hidden = !state.settings.savedKeys?.includes(id)
   $('key-field').hidden = !config.key
   $('local-field').hidden = id !== 'local'
-  $('model-field').hidden = id === 'local'
+  $('model-field').hidden = id === 'local' || id === 'publik'
+  $('api-key').placeholder =
+    id === 'publik' ? 'Optional: use your own publik key' : 'Paste your API key'
+  $('publik-field').hidden = id !== 'publik'
+  if (id === 'publik') {
+    $('publik-tier').value = state.settings.models?.publik || 'publik-fast'
+    try {
+      renderPublik(await api.publikStatus())
+    } catch (error) {
+      $('settings-error').textContent = error.message
+    }
+  }
   const subscription = ['chatgpt', 'claude-subscription'].includes(id)
   $('subscription-field').hidden = !subscription
   if (subscription) {
@@ -517,7 +555,10 @@ $('settings-form').onsubmit = async (event) => {
   try {
     const update = {
       provider: $('provider').value,
-      model: $('provider-model').value.trim(),
+      model:
+        $('provider').value === 'publik'
+          ? $('publik-tier').value
+          : $('provider-model').value.trim(),
       speechModel: $('speech-model').value,
       localModel: $('local-model').value,
     }
@@ -587,6 +628,88 @@ $('open-data').onclick = () =>
     $('settings-error').textContent = error.message
   })
 
+function renderPublik(status) {
+  $('publik-disclosure').textContent = status.disclosure
+  $('publik-setup').hidden = status.ready
+  $('publik-card').hidden = !status.ready
+  $('publik-refresh').hidden = !status.ready
+  $('publik-enable').disabled = !status.available
+  $('publik-status').textContent = status.available
+    ? status.source === 'environment'
+      ? 'Using your configured publik API key.'
+      : status.ready
+        ? status.source === 'install' && status.claimState !== 'claimed'
+          ? 'Computer set up. Link your account to start using publik.'
+          : 'publik is configured. Save settings to select it.'
+        : ''
+    : 'This build has no publik app token yet. Personal API keys and local models remain available.'
+  $('publik-balance').textContent = status.balance
+  $('publik-cost').textContent = status.cost
+  $('publik-usage').textContent = [
+    status.weekUsage && `This week: ${status.weekUsage}`,
+    status.weekBudget && `Budget: ${status.weekBudget}`,
+    status.weekReset && `Resets: ${status.weekReset}`,
+  ]
+    .filter(Boolean)
+    .join(' · ')
+  const url =
+    status.claimState === 'claimed' ? status.addCreditUrl : status.claimUrl
+  $('publik-link').hidden = !url
+  $('publik-link').textContent =
+    status.claimState === 'claimed'
+      ? 'Add a plan or pack'
+      : 'Link this computer & pick a plan'
+  $('publik-link').onclick = () =>
+    api.openLink(url).catch((error) => {
+      $('settings-error').textContent = error.message
+    })
+  $('publik-error').hidden = true
+}
+function publikSettingsError(error) {
+  $('publik-error').hidden = false
+  $('publik-error-message').textContent = error.message
+  $('publik-error-link').hidden = !error.actionUrl
+  $('publik-error-link').onclick = () =>
+    api.openLink(error.actionUrl).catch((e) => {
+      $('settings-error').textContent = e.message
+    })
+  // A 402 gets the server's message and exactly its one action link.
+  if (error.status === 402) $('publik-card').hidden = true
+}
+$('publik-enable').onclick = async () => {
+  $('publik-enable').disabled = true
+  $('publik-status').textContent = 'Setting up this computer…'
+  try {
+    renderPublik(await resultOf(api.enablePublik(true)))
+    if (!$('publik-link').hidden) $('publik-link').focus()
+    else $('publik-refresh').focus()
+  } catch (error) {
+    publikSettingsError(error)
+    $('publik-status').textContent =
+      'Setup did not finish. Retry or choose your own key.'
+  } finally {
+    $('publik-enable').disabled = false
+  }
+}
+$('publik-refresh').onclick = async () => {
+  $('publik-refresh').disabled = true
+  try {
+    renderPublik(await resultOf(api.publikWallet()))
+  } catch (error) {
+    publikSettingsError(error)
+  } finally {
+    $('publik-refresh').disabled = false
+  }
+}
+window.addEventListener('focus', () => {
+  if (
+    $('settings-dialog').open &&
+    $('provider').value === 'publik' &&
+    !$('publik-refresh').hidden
+  )
+    $('publik-refresh').click()
+})
+
 async function initialize() {
   state = await api.bootstrap()
   document.body.classList.add(`platform-${state.platform}`)
@@ -624,6 +747,7 @@ async function initialize() {
         'Sign-in did not finish. Please try again.'
     providerFields()
   })
+  api.on('publik:updated', renderPublik)
   api.on('app:error', (message) => {
     notice(message)
     $('recovery').hidden = false

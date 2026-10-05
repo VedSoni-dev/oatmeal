@@ -34,14 +34,14 @@ Official references checked October 5, 2026:
 - [Claude Agent SDK](https://platform.claude.com/docs/en/agent-sdk/overview)
 - [Electron audio capture](https://www.electronjs.org/docs/latest/api/desktop-capturer/)
 
-## Publik: pending approval
+## Publik API
 
-The supplied [publik skill](https://publikhq.com/skills/api.md) explicitly requires plan approval before implementation/provisioning. Proposed app slug: `oatmeal`. After approval:
+`desktop/core/publik.mjs` adapts the [TypeScript reference](https://publikhq.com/sdk/publik.ts.md) for the Electron main process. Only chat is connected; transcription remains local. The model selector accepts `publik-fast` (default), `publik-balanced`, and `publik-smart`.
 
-1. Browser-approved device flow for the public app token; store it in `publik-app-token.txt`.
-2. Adapt the reference module with `publik-fast`, `publik-balanced`, and `publik-smart`; choose the cheapest suitable tier.
-3. Consent before provisioning or sending text; preserve personal-key/local alternatives.
-4. First-run balance/cost/link card and exact 402 message with the supplied action link.
-5. Add the prescribed AGENTS.md block and verify a small real call after linking/credit setup.
+Credential precedence: a personal publik key saved in Oatmeal's encrypted settings, then `PUBLIK_API_KEY` / `PUBLIK_API_BASE_URL`, then the provisioned per-app file. With none present, the UI shows the full disclosure and provisions only after the user clicks Accept. No install or wallet request happens just by selecting the provider. Returning from the account-link browser refreshes the visible balance card.
 
-No publik credentials, install registrations or billable calls have been created during this implementation.
+The public app token comes from `PUBLIK_APP_TOKEN` or a root `publik-app-token.txt`, which Electron Builder includes in the app archive. A `pat_` token is public by design and may be committed. Follow the [publik integration skill](https://publikhq.com/skills/api.md) to register the `oatmeal` slug using browser authorization. That registration and the live proof call are still pending; personal-key and local options work independently of it.
+
+Provisioned `pk_` keys are atomically saved with mode 0600 under `~/Library/Application Support/publik/apps/oatmeal.json` on Mac or `%LOCALAPPDATA%/publik/apps/oatmeal.json` on Windows, following Publik's shared credential convention. They never enter IPC responses, screenshots, logs, exports, or repository files. Personal keys pasted into Settings use OS encryption instead.
+
+The first-run card shows the balance, the returned cost disclosure verbatim, and one account-link button. Metering headers update the card. A 402 displays the service's message and its one action URL; other providers stay selectable. Logs contain only app slug, requested tier, HTTP status and charge. Requests reject redirects and oversized bodies, and carry idempotency keys. Credential provisioning fails visibly if its required disk write fails; an optional balance-cache write failure does not discard a completed model answer.
