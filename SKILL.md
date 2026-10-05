@@ -24,7 +24,7 @@ doesn't matter.
 2. Run `node scripts/install-autostart.mjs`. This registers the recorder as an
    OS-level background service (Windows Scheduled Task / macOS LaunchAgent / Linux
    systemd --user service), starts it immediately, and makes it auto-start at every
-   login from now on. You do not need to run `npm start` manually, and you do not
+   login from now on. You do not need to run `npm run start:browser` manually, and you do not
    need to stay open for the recorder to work tomorrow.
 3. Open http://localhost:4123 in the user's default browser
    (Windows: `start http://localhost:4123`, macOS: `open`, Linux: `xdg-open`).

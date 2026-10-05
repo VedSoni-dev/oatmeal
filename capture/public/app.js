@@ -80,11 +80,11 @@ async function loadWhisper() {
   const want = modelSelect.value
   if (asr && asrModel === want) return asr
   asr = null
-  const { pipeline, env } = await import('/vendor/transformers/transformers.min.js')
+  const { pipeline, env } = await import('/vendor/transformers/transformers.web.min.js')
   env.allowLocalModels = false
   if (env.backends?.onnx?.wasm) {
     env.backends.onnx.wasm.numThreads = 1
-    env.backends.onnx.wasm.wasmPaths = new URL('/vendor/transformers/', location.href).href
+    env.backends.onnx.wasm.wasmPaths = new URL('/vendor/onnx/', location.href).href
   }
   const device = 'gpu' in navigator ? 'webgpu' : 'wasm'
   const make = (dev) =>

@@ -173,6 +173,6 @@ WantedBy=default.target
 
 main().catch((e) => {
   console.error('Autostart install failed:', e.message)
-  console.error('Fallback: just run `npm start` in a terminal and leave it open.')
+  console.error('Fallback: just run `npm run start:browser` in a terminal and leave it open.')
   process.exit(1)
 })

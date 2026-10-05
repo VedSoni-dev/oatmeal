@@ -32,6 +32,7 @@ const MIME = {
 // Static roots: the UI, plus transformers.js + onnx runtime from node_modules so
 // Whisper runs fully local (no CDN).
 const STATIC = [
+  { prefix: '/vendor/onnx/', dir: join(ROOT, 'node_modules/onnxruntime-web/dist') },
   { prefix: '/vendor/transformers/', dir: join(ROOT, 'node_modules/@huggingface/transformers/dist') },
   { prefix: '/', dir: join(__dirname, 'public') }
 ]
@@ -157,7 +158,7 @@ server.on('error', (e) => {
   throw e
 })
 
-server.listen(PORT, () => {
+server.listen(PORT, '127.0.0.1', () => {
   console.log(`[oatmeal] capture server on http://localhost:${PORT}`)
   console.log(`[oatmeal] transcripts land in ${MEETINGS_DIR}`)
 })

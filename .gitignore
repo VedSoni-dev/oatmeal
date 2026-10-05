@@ -5,3 +5,10 @@ meetings/*
 !meetings/.gitkeep
 oatmeal.config.json
 .oatmeal-notified.json
+dist/
+test-results/
+playwright-report/
+.env*
+!.env.example
+*.p12
+*.pfx
