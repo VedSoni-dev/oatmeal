@@ -1,105 +1,134 @@
+<div align="center">
+
+<img src="docs/assets/oatmeal-icon.svg" width="88" height="88" alt="Oatmeal bowl icon" />
+
 # Oatmeal
 
-A little space for your meetings. An open-source desktop meeting notebook for macOS and Windows, inspired by the workflow of Granola.
+### A little more present.
 
-Listen to the conversation, jot down a few thoughts, and turn a local transcript into useful notes. No meeting bot joins your calls. You choose where the AI runs.
+An open-source meeting notebook with local transcription and your choice of AI.<br />Listen, jot down a thought, and leave with the details that matter.
 
-## Desktop app
+[![License: MIT](https://img.shields.io/badge/license-MIT-697558?style=flat-square)](LICENSE) [![Local transcription](https://img.shields.io/badge/transcription-on_your_computer-697558?style=flat-square)](#your-meetings-your-choice) [![Desktop preview](https://img.shields.io/badge/macOS_%2B_Windows-desktop_preview-b85b37?style=flat-square)](#try-oatmeal)
 
-- Searchable meeting library, editable notes, automatic saves, Markdown import/export.
-- Microphone and optional system audio, transcribed separately as **You** and **Room**.
-- Downloadable Whisper speech models and Qwen text models. No separate local runtime required.
-- Summaries, decisions, action items, and questions about a meeting.
-- OpenAI, Claude, Grok, and OpenRouter API keys, encrypted using the operating system.
-- Publik API with Fast, Balanced and Smart tiers, consent-based setup, balance and account linking.
-- ChatGPT sign-in through the official Codex runtime; Claude sign-in and generation through the official Claude Agent SDK.
-- Optional Ollama integration and interrupted-recording recovery.
+**[Try Oatmeal](#try-oatmeal)** · **[Watch the demo](#a-meeting-in-ten-seconds)** · **[On Publik ↗](https://publikhq.com/oatmeal-vedsoni-dev)** · **[Road to release](https://github.com/VedSoni-dev/oatmeal/pull/2)**
 
-**Status:** active development. Mac development builds and automated tests are available. Windows installer configuration and CI are included; Windows hardware audio/sign-in verification is still required. Published, signed installers are not available yet. Publik's desktop integration and public app token are included. New installations must link their account and have sufficient credit before making AI requests.
+<img src="docs/assets/oatmeal-notebook.png" width="1180" alt="Oatmeal’s desktop notebook showing a Product sync meeting, its summary, decisions, and next steps beside a searchable meeting library." />
 
-## Run from source
+<sub>The actual desktop preview. Example meeting with fictional content.</sub>
 
-Install Node.js 22 or newer, then:
+</div>
+
+## A notebook that listens
+
+Your meeting is the main event. Oatmeal keeps a local transcript while you take the few notes that matter, then helps you find the decisions, commitments, and next steps.
+
+**Capture the conversation.** Record your microphone and optional meeting audio. Whisper transcribes on your computer. No bot joins the call.
+
+**Add your perspective.** Write in a clean notebook while the conversation flows. Notes save automatically.
+
+**Keep what matters.** Make a summary, ask about the meeting, search your library, or export everything as Markdown.
+
+## A meeting in ten seconds
+
+![Oatmeal demo moving from personal notes to the You/Room transcript and then to a concise meeting summary.](docs/assets/oatmeal-demo.gif)
+
+<sub>UI walkthrough with fictional notes, transcript, and a prepared summary. Generation and recording are not shown.</sub>
+
+## Your meetings, your choice
+
+**Audio is transcribed locally.** Choose where the text goes when you ask for AI help.
+
+<table>
+<tr>
+<td align="center" width="25%"><a href="https://claude.com"><picture><source media="(prefers-color-scheme: dark)" srcset="docs/assets/logos/claude-light.svg" /><img src="docs/assets/logos/claude.svg" width="32" height="32" alt="Claude" /></picture><br /><strong>Claude</strong></a></td>
+<td align="center" width="25%"><a href="https://openrouter.ai"><picture><source media="(prefers-color-scheme: dark)" srcset="docs/assets/logos/openrouter-light.svg" /><img src="docs/assets/logos/openrouter.svg" width="32" height="32" alt="OpenRouter" /></picture><br /><strong>OpenRouter</strong></a></td>
+<td align="center" width="25%"><a href="https://ollama.com"><picture><source media="(prefers-color-scheme: dark)" srcset="docs/assets/logos/ollama-light.svg" /><img src="docs/assets/logos/ollama.svg" width="32" height="32" alt="Ollama" /></picture><br /><strong>Ollama</strong></a></td>
+<td align="center" width="25%"><a href="https://huggingface.co/docs/transformers.js"><picture><source media="(prefers-color-scheme: dark)" srcset="docs/assets/logos/huggingface-light.svg" /><img src="docs/assets/logos/huggingface.svg" width="32" height="32" alt="Hugging Face" /></picture><br /><strong>Local models</strong></a></td>
+</tr>
+</table>
+
+| Option | How it works |
+| --- | --- |
+| **On this computer** | Download Whisper for speech and Qwen for text. Work offline after the downloads, with no account or usage bill. Small local text models select original meeting excerpts to preserve facts. |
+| **ChatGPT subscription** | Sign in through the official Codex runtime. Your plan’s Codex limits apply. |
+| **Claude subscription** | Sign in through the official Claude Agent SDK. Eligibility and usage follow your Claude plan. |
+| **Your API key** | Connect OpenAI, Claude, Grok, or OpenRouter. Keys saved in Settings use operating-system encryption. |
+| **Publik API** | Choose Fast, Balanced, or Smart. Link an account and use a shared Publik balance; the app shows costs and account links. A fresh install starts at $0.00. |
+| **Ollama** | Connect to an existing local Ollama server and choose your model. |
+
+Cloud requests require confirmation. Raw audio stays on your computer. Cloud providers receive meeting text only when you ask them for AI help. [Read the privacy and account details →](docs/desktop-guide.md#privacy-and-accounts)
+
+## Try Oatmeal
+
+**The desktop app is a development preview in [PR #2](https://github.com/VedSoni-dev/oatmeal/pull/2).** Apple Silicon development builds have been tested. Windows and Intel Mac packaging are configured, with platform validation still pending. Signed public installers are not available yet.
+
+With **Node.js 22+**, run:
 
 ```sh
-git clone https://github.com/VedSoni-dev/oatmeal.git
+git clone --branch codex/desktop-app https://github.com/VedSoni-dev/oatmeal.git
 cd oatmeal
 npm ci
 npm start
 ```
 
-The app opens in its own desktop window. No coding agent, browser server, Rust toolchain, or separate model runtime is needed.
+Oatmeal opens in its own desktop window. No coding agent or separate local model server is needed.
 
-1. Open **Settings** and download a speech model. Whisper Tiny is fastest for English; Base and Small support multiple languages.
-2. Choose an AI provider. **On this computer** is the default; download a text model for offline summaries. For an API, save your own key and optionally edit the model ID. For a subscription, click **Sign in** and finish in your browser.
-3. Create a meeting and click **Record**. Let participants know you're taking notes. Enable **Meeting audio** to include the other side of a call.
-4. Jot down thoughts while the transcript is captured. Stop and choose **Summary → Generate notes**.
+1. **Set up your models.** Open Settings and download a speech model. Choose local text, a subscription, Publik, or your own API key.
+2. **Start a meeting.** Give it a name, press Record, and let participants know you’re taking notes. Turn on Meeting audio to include the other side of a call.
+3. **Make it useful.** Add a few notes, stop recording, and choose Summary → Generate notes. Export when you’re ready.
 
-Models download from Hugging Face only when requested. Local inference runs on CPU; larger models and long recordings need more memory and time. Built-in local notes and answers select original meeting excerpts to preserve facts; cloud providers produce fuller narrative summaries. API model availability depends on your account; model IDs are editable.
+<details>
+<summary><strong>Build a Mac or Windows installer</strong></summary>
 
-For **publik API**, choose a tier (Fast is the lowest-cost default), accept the disclosure, then use **Link this computer & pick a plan**. An install starts at $0.00; the first account link provides $0.05 of free use once. The app shows the service's cost disclosure and balance. You can instead paste your own publik key, choose another personal API provider, or use local models. Provisioned publik keys stay in its per-app credential file with restricted permissions; they are never exposed to the app's web UI. See [Publik setup](docs/ARCHITECTURE.md#publik-api) for builder configuration.
-
-## Platforms and builds
-
-| Platform | Artifact | Validation |
-| --- | --- | --- |
-| macOS 14.2+, Apple Silicon | `.app`, `.dmg`, `.zip` | Local development and automated tests |
-| macOS 14.2+, Intel | `.dmg`, `.zip` | Intel CI configuration; hardware validation pending |
-| Windows 10/11, x64 | NSIS `.exe` installer | Windows CI configuration; hardware validation pending |
+Run on the matching operating system and architecture:
 
 ```sh
-npm run build:mac  # on macOS
-npm run build:win  # on Windows
-npm run pack      # unpacked development app
+npm run build:mac   # .app, .dmg, .zip — macOS 14.2+
+npm run build:win   # NSIS installer — Windows 10/11 x64
 ```
 
-Use a matching host architecture so the bundled native runtimes match. Output goes to `dist/`. The app includes native inference libraries and official account runtimes; model weights download separately. See [release setup](docs/RELEASING.md) for signing, notarization and CI. Release tags require signing credentials and produce a **draft** GitHub release.
+Local builds are development artifacts. See [signing and release setup](https://github.com/VedSoni-dev/oatmeal/blob/codex/desktop-app/docs/RELEASING.md) before distributing them. Real subscription sign-in, platform audio permissions, and long meetings still need release validation; [verification status](https://github.com/VedSoni-dev/oatmeal/blob/codex/desktop-app/docs/VERIFICATION.md) records what was actually tested.
 
-## Privacy and accounts
+</details>
 
-Meetings live in Electron's application data directory. **Settings → Open meetings folder** opens the actual location. Exported Markdown can be shared or committed to your own knowledge repository.
+## Bring your coding agent
 
-Audio is transcribed locally. Captured chunks are written temporarily to `pending-audio/` for crash recovery, then deleted after their transcript is saved. Notes, transcripts and pending audio are protected by OS account permissions, **not application-level encryption**. Use **Recover audio** after interrupted transcription. Model files remain cached for offline use.
+The original browser recorder and Markdown workflow are still here. Work with meeting files in **Cursor, Claude Code, Codex, or another MCP client**.
 
-Cloud providers receive meeting text when you request AI help and confirm the disclosure. Raw audio is not uploaded. Provider runtimes retain data according to their own terms. Oatmeal isolates account configuration from existing coding-agent setups. API credentials are never returned to the renderer after storage or included in exports.
+<table>
+<tr>
+<td align="center" width="33%"><a href="https://cursor.com"><picture><source media="(prefers-color-scheme: dark)" srcset="docs/assets/logos/cursor-light.svg" /><img src="docs/assets/logos/cursor.svg" width="36" height="36" alt="Cursor" /></picture><br /><strong>Cursor</strong><br /><sub>MCP + Markdown</sub></a></td>
+<td align="center" width="33%"><a href="https://claude.com/product/claude-code"><picture><source media="(prefers-color-scheme: dark)" srcset="docs/assets/logos/claude-light.svg" /><img src="docs/assets/logos/claude.svg" width="36" height="36" alt="Claude" /></picture><br /><strong>Claude Code</strong><br /><sub>Skills + MCP</sub></a></td>
+<td align="center" width="33%"><a href="https://developers.openai.com/codex"><img src="docs/assets/logos/openai.png" width="36" height="36" alt="OpenAI" /><br /><strong>Codex</strong><br /><sub>MCP + Markdown</sub></a></td>
+</tr>
+</table>
 
-ChatGPT subscriptions use Codex plan access, not API credit. Claude subscriptions use the official Agent SDK; eligibility and billing follow Anthropic's current rules. See [architecture and official references](docs/ARCHITECTURE.md).
+The MCP server exposes `list_meetings`, `search_meetings`, and `get_meeting` for Markdown files. Export desktop meetings into the folder you configure for MCP; it does not automatically read the desktop database. **[Agent setup guide →](docs/agent-workflow.md)**
 
-System audio depends on OS permissions and capture source. The app warns when it can only hear your microphone. You/Room attribution does not identify individual remote speakers. Real meetings on both platforms need hardware testing before release.
+## Built to stay yours
 
-## Development
+- **Plain Markdown exports.** Take your notes and transcripts to another tool whenever you want.
+- **Local storage.** Meetings stay in your application data folder. Pending audio is saved temporarily for recovery, then deleted after transcription succeeds.
+- **Recoverable recordings.** Interrupted transcription can resume from saved audio chunks.
+- **Open source.** Inspect the code, change the prompts, add a provider, or build your own version.
+
+Meeting files are not encrypted by the app. System-audio capture depends on the OS, permissions, and chosen source. You/Room separates audio lanes, not individual remote speakers.
+
+## Make it better
+
+<p><a href="https://www.electronjs.org"><picture><source media="(prefers-color-scheme: dark)" srcset="docs/assets/logos/electron-light.svg" /><img src="docs/assets/logos/electron.svg" width="24" height="24" alt="Electron" /></picture></a> Built on Electron, with local models powered by Transformers.js.</p>
+
+Bug reports, thoughtful design feedback, and pull requests are welcome. Include your OS, provider, and steps to reproduce; keep meeting content and credentials out of public issues.
+
+On the desktop preview branch:
 
 ```sh
-npm test              # persistence, credentials, providers, long-meeting handling
-npm run test:desktop  # actual Electron UI, persistence and renderer isolation
+npm test
+npm run test:desktop
 ```
 
-An opt-in recording test uses a synthetic 16-bit PCM WAV instead of your microphone:
+[Desktop guide](docs/desktop-guide.md) · [Architecture](https://github.com/VedSoni-dev/oatmeal/blob/codex/desktop-app/docs/ARCHITECTURE.md) · [Release checklist](https://github.com/VedSoni-dev/oatmeal/blob/codex/desktop-app/docs/RELEASING.md) · [Report an issue](https://github.com/VedSoni-dev/oatmeal/issues)
 
-```sh
-OATMEAL_SPEECH_FIXTURE=/absolute/path/speech.wav \
-OATMEAL_MODEL_CACHE=/absolute/path/downloaded/models \
-npx playwright test recording.spec.mjs
-```
+---
 
-This opt-in fake-device test launches Chromium with `--no-sandbox` so it can read the fixture. The shipping app retains its sandbox; the normal desktop test verifies renderer isolation.
-
-| Directory | Responsibility |
-| --- | --- |
-| `desktop/main.mjs` | Native window, permissions, IPC, recording lifecycle |
-| `desktop/core/` | Persistence, provider adapters, official account runtimes |
-| `desktop/workers/` | Background Whisper/Qwen inference |
-| `desktop/ui/` | Sandboxed notebook, settings, AudioWorklet capture |
-| `tests/` | Core contracts and Electron integration tests |
-| `.github/workflows/desktop.yml` | Platform checks, installers, draft releases |
-| `capture/`, `scripts/` | Original browser recorder, MCP and calendar tools |
-
-The [original browser/agent workflow](docs/legacy-agent-workflow.md) remains available with `npm run start:browser`. Import existing `.transcript.md` files through **Import transcript**. The desktop app never automatically uploads, commits or pushes an existing meetings repository.
-
-## Credits and license
-
-MIT © Vedant Soni. Independently implemented; not affiliated with Granola.
-
-[WhimprFlow](https://github.com/Blueturboguy07/WhimprFlow) informed the separation of UI/audio/providers, credential storage, model provisioning, and platform release checks. Oatmeal uses Electron to reuse its web audio code. No WhimprFlow source was copied.
-
-Third-party runtimes and downloaded models retain their own licenses and terms. The official Claude runtime is distributed under Anthropic's terms, not Oatmeal's MIT license.
+MIT © Vedant Soni. An independent Granola alternative. [WhimprFlow](https://github.com/Blueturboguy07/WhimprFlow) inspired the platform and release patterns. Product names and logos identify the tools and services described; they belong to their respective owners and do not imply endorsement. [Asset credits](docs/assets/README.md)
