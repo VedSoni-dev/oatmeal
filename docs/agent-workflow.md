@@ -16,12 +16,13 @@ The repository also includes `.mcp.json`, Claude skills, and commands. Review an
 
 ## Cursor or another MCP client
 
-Add this entry to your client's MCP configuration, replacing both paths with your own:
+For Cursor, add this entry to `.cursor/mcp.json` in the project or `~/.cursor/mcp.json` globally. For another client, use its MCP settings. Replace both paths with your own:
 
 ```json
 {
   "mcpServers": {
     "oatmeal": {
+      "type": "stdio",
       "command": "node",
       "args": ["/absolute/path/to/oatmeal/scripts/mcp-server.mjs"],
       "env": {
@@ -46,3 +47,5 @@ node capture/server.mjs
 Open `http://localhost:4123`. Record in the browser; transcripts are saved as Markdown in `meetings/`. On the desktop branch, the equivalent command is `npm run start:browser`.
 
 For the complete original workflow, see [the legacy guide](https://github.com/VedSoni-dev/oatmeal/blob/codex/desktop-app/docs/legacy-agent-workflow.md).
+
+Official configuration references: [Cursor MCP](https://cursor.com/docs/mcp) and [Claude Code MCP](https://code.claude.com/docs/en/mcp).
