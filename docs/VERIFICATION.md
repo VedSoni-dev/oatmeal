@@ -16,7 +16,7 @@ Tested on the development Apple Silicon Mac. These results do not claim Windows 
 ## Still requires validation/setup
 
 - Real microphones and system audio on Mac, Intel Mac, and Windows; OS permission denial/recovery and long live calls.
-- Windows/Intel CI builds have been configured but not run from this local session.
+- Mac/Windows CI was triggered on draft PR #2, but GitHub blocked the hosted jobs before execution due to an account restriction. No Windows or Intel build result is available.
 - Browser sign-in completion and a live generation using ChatGPT/Claude accounts. Only signed-out runtime startup was verified.
 - Paid API calls for OpenAI, Claude, xAI and OpenRouter. Their protocol adapters were verified with mocked responses; no personal keys were used.
 - Publik: browser approval for app-token registration and the required live proof call. Unit and desktop checks use fixtures; they do not prove service authorization or billing.
