@@ -24,6 +24,7 @@ let ctx, streams = []
 let asr = null, asrModel = null
 let pump = Promise.resolve()
 let timerInterval = null, startedAt = 0
+let shareLabel = ''
 
 // Whisper model choice persists across visits; changing it reloads on next record.
 modelSelect.value = localStorage.getItem('oatmeal-model') ?? 'Xenova/whisper-base'
@@ -150,6 +151,7 @@ async function startCapture() {
   attachLane('you', mic)
 
   let sysActive = false
+  shareLabel = ''
   try {
     // Chrome: share a screen/tab WITH audio -> we get system loopback, kept as
     // its own stream (never mixed with mic) so it can be transcribed and
@@ -160,6 +162,10 @@ async function startCapture() {
       systemAudio: 'include',
       selfBrowserSurface: 'exclude'
     })
+    // A shared tab's track label is its page title (e.g. "Weekly sync - Zoom") —
+    // the server uses it to name the meeting when no title was typed.
+    const video = sys.getVideoTracks()[0]
+    shareLabel = video?.getSettings?.().displaySurface === 'browser' ? video.label : ''
     sys.getVideoTracks().forEach((t) => t.stop())
     if (sys.getAudioTracks().length > 0) {
       streams.push(sys)
@@ -227,7 +233,7 @@ async function start() {
     const res = await fetch('/api/session/start', {
       method: 'POST',
       headers: { 'content-type': 'application/json' },
-      body: JSON.stringify({ title: titleInput.value })
+      body: JSON.stringify({ title: titleInput.value, tab: shareLabel })
     })
     session = await res.json()
     recording = true
@@ -271,6 +277,7 @@ async function stop() {
   btn.disabled = false
   modelSelect.disabled = false
   if (session) {
+    status('Naming meeting…')
     const res = await fetch('/api/session/stop', {
       method: 'POST',
       headers: { 'content-type': 'application/json' },
