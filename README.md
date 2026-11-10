@@ -12,9 +12,9 @@ An open-source meeting notebook with local transcription and your choice of AI.<
 
 **[Run it today](#run-it-today-browser-recorder--your-coding-agent)** · **[Watch the demo](#see-it-work)** · **[On Publik ↗](https://publikhq.com/oatmeal-vedsoni-dev)** · **[Road to release](https://github.com/VedSoni-dev/oatmeal/pull/2)**
 
-<img src="docs/assets/oatmeal-notebook.png" width="1180" alt="Oatmeal’s desktop notebook showing a Product sync meeting, its summary, decisions, and next steps beside a searchable meeting library." />
+<img src="docs/media/oatmeal-cover.png" width="1180" alt="Oatmeal: record the meeting, your agent writes the notes. The browser recorder transcribing a sample meeting into You and Room lanes." />
 
-<sub>The desktop preview from [PR #2](https://github.com/VedSoni-dev/oatmeal/pull/2) (not on `main` yet). Example meeting with fictional content.</sub>
+<sub>The recorder that ships on `main` today, transcribing a scripted sample meeting with local Whisper.</sub>
 
 </div>
 
@@ -52,6 +52,10 @@ The browser recorder on `main`, recording a sample meeting. Whisper transcribes 
 | <img src="docs/media/screenshot-3-ledger.png" alt="Recorder after stopping: saved status and the new transcript in the ledger." /> | <img src="docs/media/screenshot-4-notes.png" alt="Notes file with summary, decisions and action items shown in the meeting viewer." /> |
 
 ### The desktop preview (PR #2)
+
+<img src="docs/assets/oatmeal-notebook.png" width="1180" alt="Oatmeal’s desktop notebook showing a Product sync meeting, its summary, decisions, and next steps beside a searchable meeting library." />
+
+<sub>Not on `main` yet. Example meeting with fictional content.</sub>
 
 ![Oatmeal demo moving from personal notes to the You/Room transcript and then to a concise meeting summary.](docs/assets/oatmeal-demo.gif)
 
