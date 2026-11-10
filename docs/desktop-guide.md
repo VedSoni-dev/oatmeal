@@ -1,5 +1,7 @@
 # Oatmeal
 
+> This guide covers the **desktop preview** in [PR #2](https://github.com/VedSoni-dev/oatmeal/pull/2), which is not merged into `main` yet. For what runs from `main` today (browser recorder + coding agent), see the [README](../README.md#run-it-today-browser-recorder--your-coding-agent) and the [agent workflow guide](agent-workflow.md).
+
 A little space for your meetings. An open-source desktop meeting notebook for macOS and Windows, inspired by the workflow of Granola.
 
 Listen to the conversation, jot down a few thoughts, and turn a local transcript into useful notes. No meeting bot joins your calls. You choose where the AI runs.
@@ -15,7 +17,7 @@ Listen to the conversation, jot down a few thoughts, and turn a local transcript
 - ChatGPT sign-in through the official Codex runtime; Claude sign-in and generation through the official Claude Agent SDK.
 - Optional Ollama integration and interrupted-recording recovery.
 
-**Status:** active development. Mac development builds and automated tests are available. Windows installer configuration and CI are included; Windows hardware audio/sign-in verification is still required. Published, signed installers are not available yet. Publik's desktop integration and public app token are included. New installations must link their account and have sufficient credit before making AI requests.
+**Status:** active development. Mac development builds and automated tests are available. Windows installer configuration and CI are included; Windows hardware audio/sign-in verification is still required. Published, signed installers are not available yet. Publik's desktop integration and public app token are included and tested against a mocked service; a live paid generation has not been verified yet. New installations must link their account and have sufficient credit before making AI requests.
 
 ## Run from source
 

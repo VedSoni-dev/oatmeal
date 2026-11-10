@@ -5,12 +5,13 @@ Publisher copy and media for [Oatmeal's listing](https://publikhq.com/oatmeal-ve
 ## Listing fields
 
 - **Name:** Oatmeal
-- **Summary:** Local meeting notes, with your choice of AI. Desktop preview available.
+- **Summary:** Local meeting transcripts in your browser; your coding agent writes the notes.
 - **Category:** Productivity
 - **Alternative to:** Granola
 - **License:** MIT
 - **Repository:** https://github.com/VedSoni-dev/oatmeal
-- **AI:** Local transcription; optional local text models, personal API keys, subscription runtimes, or Publik chat.
+- **AI:** Local Whisper transcription. On `main`, notes come from your own coding agent (Claude Code, Cursor, Codex). Publik API, local text models, API keys and subscription runtimes are in the desktop preview only (PR #2).
+- **Publik API flag:** should read *not built in yet* until PR #2 merges and a live call is verified. The current listing says "Built in" — that comes from the submitted manifest and needs a re-submit from the owner's Publik account.
 
 ## Description
 
@@ -27,9 +28,14 @@ The desktop preview brings your notes, transcript, and summary into one calm wor
 
 **Preview status:** the desktop app is in [PR #2](https://github.com/VedSoni-dev/oatmeal/pull/2). Apple Silicon development builds have been tested; Windows and Intel Mac validation is pending. Signed public installers are not available yet. Publik's current source installation still uses the original browser workflow on `main`; the README explains how to try the desktop branch.
 
-**Publik usage:** choose Fast, Balanced, or Smart in the desktop preview. A new install starts at $0.00 and must link its account and have enough credit to make AI calls. Cost and balance information are shown in the app. Your own key and local models remain available.
+**Publik usage (desktop preview only, not on `main`):** choose Fast, Balanced, or Smart. A new install starts at $0.00 and must link its account and have enough credit to make AI calls. Cost and balance information are shown in the app. Your own key and local models remain available. Status: implemented and tested with a mocked Publik service; the first live request returned 402 on a zero balance, so no live generation has been verified yet.
 
 ## Media
+
+- [Demo video](https://github.com/VedSoni-dev/oatmeal/raw/main/docs/media/oatmeal-demo.mp4) and [GIF](https://raw.githubusercontent.com/VedSoni-dev/oatmeal/main/docs/media/oatmeal-main-demo.gif) — real run of `main`: browser recorder + local Whisper on a labeled text-to-speech sample meeting, notes by Claude Code.
+- [Cover 1200×630](https://raw.githubusercontent.com/VedSoni-dev/oatmeal/main/docs/media/oatmeal-cover.png) and four screenshots in [`docs/media/`](https://github.com/VedSoni-dev/oatmeal/tree/main/docs/media).
+
+Desktop preview media (PR #2, fictional content):
 
 - [Lead screenshot](https://raw.githubusercontent.com/VedSoni-dev/oatmeal/main/docs/assets/oatmeal-notebook.png) — actual desktop preview, fictional meeting content.
 - [Demo GIF](https://raw.githubusercontent.com/VedSoni-dev/oatmeal/main/docs/assets/oatmeal-demo.gif) — notes → transcript → summary; prepared demo content, no live model generation shown.
