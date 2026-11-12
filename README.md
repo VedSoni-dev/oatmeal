@@ -19,7 +19,7 @@ An open-source meeting notebook with local transcription and your choice of AI.<
 </div>
 
 > [!NOTE]
-> **What you get from `main` today:** a local browser recorder (Whisper in your browser, You/Room lanes, Markdown transcripts) plus your coding agent — Claude Code, Cursor or Codex — writing the notes. That's what installs from this repo and from the Publik listing.
+> **What you get from `main` today:** a local browser recorder (Whisper in your browser, You/Room lanes, Markdown transcripts) plus your coding agent — Claude Code, Cursor or Codex — writing the notes. That's what installs from this repo and from the Publik listing. It opens with **Sign in with publik** (free, once per computer); the recorder itself calls no AI service.
 >
 > **Still in preview:** the standalone desktop app with built-in AI and the **Publik API** option lives in draft [PR #2](https://github.com/VedSoni-dev/oatmeal/pull/2). Its Publik path is implemented and tested against a mocked service, but a live paid generation hasn't been verified yet, and there are no signed installers or GitHub releases.
 
@@ -96,11 +96,13 @@ npm ci
 npm start            # recorder at http://localhost:4123
 ```
 
-1. Open http://localhost:4123, type a title, and press **Record**. Share a tab or your entire screen **with audio** to get the Room lane; otherwise it records your mic only.
+1. Open http://localhost:4123 and **Sign in with publik** the first time (it opens publik in your browser; the recorder appears by itself once you're signed in). Then type a title and press **Record**. Share a tab or your entire screen **with audio** to get the Room lane; otherwise it records your mic only.
 2. The first recording downloads a Whisper model (~80 MB for base) into the browser, then transcription runs locally. Transcripts land in `meetings/` (or `OATMEAL_MEETINGS_DIR`).
 3. Open the repo in Claude Code and run `/writeup` — or ask Cursor/Codex to follow `SKILL.md` — to turn the transcript into notes with decisions and action items. That step uses your agent's model and account.
 
 `node scripts/install-autostart.mjs` keeps the recorder running in the background. **[Agent setup guide →](docs/agent-workflow.md)**
+
+**Sign in with publik and usage counting.** Oatmeal is listed on [publik](https://publikhq.com/oatmeal-vedsoni-dev), and every publik app opens with Sign in with publik ([`capture/publik.mjs`](capture/publik.mjs), publik's official module). Once you're signed in, the recorder sends publik two small events so it can count weekly users: `app_opened` when the server starts and `active_session` every 30 minutes while it runs. They carry the app name and version, your OS and CPU type, and a random install ID. No meeting audio, transcripts, titles, file names or prompts are sent. Turn it off with `DO_NOT_TRACK=1` or `PUBLIK_TELEMETRY=off`, or by setting `"usage": false` in publik's `consent.json` ([details](https://publikhq.com/skills/telemetry.md)). The sign-in key is stored in publik's per-app credential file (mode 0600), never in this repo. `PUBLIK_SELF_TEST=1 npm start` prints `publik self-test: ok oatmeal-vedsoni-dev <version>` and exits.
 
 ## Try the desktop preview
 

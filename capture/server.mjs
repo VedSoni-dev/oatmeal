@@ -14,6 +14,8 @@ import { existsSync } from 'node:fs'
 import { join, dirname, extname, normalize } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { slug, quickTitle, finalTitle } from './naming.mjs'
+import { APP_SLUG, APP_VERSION, ensureSignedIn, terminalUI } from './publik.mjs'
+import { gatePage } from './gate-page.mjs'
 
 const __dirname = dirname(fileURLToPath(import.meta.url))
 const ROOT = join(__dirname, '..')
@@ -38,6 +40,23 @@ const STATIC = [
 ]
 
 const sessions = new Map() // id -> { file, title, startedAt, segments: number }
+
+// Sign in with publik (capture/publik.mjs) runs when the server starts, before the recorder's first screen.
+// Its screens are drawn by the page at /, so the gate also works when the server starts at login.
+const gate = { ready: false, screen: null, link: null, answer: null }
+const browserUI = {
+  show(screen, signal) {
+    gate.screen = screen
+    return new Promise((resolve) => {
+      gate.answer = resolve
+      signal.addEventListener('abort', () => { if (gate.answer === resolve) gate.answer = null }, { once: true })
+    })
+  },
+  openUrl(url) {
+    gate.link = url
+    terminalUI().openUrl(url) // opens the default browser and prints the link
+  }
+}
 
 // meetings/<stamp>-<slug>.transcript.md, adding -2, -3… if that name is taken.
 function transcriptPath(startedAt, title, current) {
@@ -83,6 +102,21 @@ const server = createServer(async (req, res) => {
   const path = url.pathname
 
   try {
+    // --- Sign in with publik ---
+    if (path === '/api/publik/gate') {
+      if (req.method === 'POST') {
+        const { action } = await json(req)
+        const ok = Boolean(gate.answer && gate.screen?.buttons.some((b) => b.action === action))
+        if (ok) { const answer = gate.answer; gate.answer = null; answer(action) }
+        return send(res, ok ? 200 : 409, { ok })
+      }
+      return send(res, 200, { ready: gate.ready, screen: gate.ready ? null : gate.screen, link: gate.ready ? null : gate.link })
+    }
+    if (!gate.ready && path !== '/api/health') {
+      if (path.startsWith('/api/')) return send(res, 403, { error: 'Sign in with publik first: open http://localhost:' + PORT })
+      if (req.method === 'GET' && !path.startsWith('/vendor/')) return send(res, 200, gatePage(), 'text/html; charset=utf-8')
+    }
+
     // --- API ---
     if (req.method === 'POST' && path === '/api/session/start') {
       const { title: typed, tab } = await json(req)
@@ -141,7 +175,7 @@ const server = createServer(async (req, res) => {
     }
 
     if (req.method === 'GET' && path === '/api/health') {
-      return send(res, 200, { ok: true, meetingsDir: MEETINGS_DIR })
+      return send(res, 200, { ok: true, meetingsDir: MEETINGS_DIR, signedIn: gate.ready })
     }
 
     // --- static ---
@@ -179,7 +213,15 @@ server.on('error', (e) => {
   throw e
 })
 
+// Builder check (https://publikhq.com/skills/setup.md): PUBLIK_SELF_TEST=1 npm start prints one line and exits.
+if (process.env.PUBLIK_SELF_TEST) await ensureSignedIn(browserUI)
+
 server.listen(PORT, () => {
   console.log(`[oatmeal] capture server on http://localhost:${PORT}`)
   console.log(`[oatmeal] transcripts land in ${MEETINGS_DIR}`)
+  console.log(`[oatmeal] Sign in with publik: open http://localhost:${PORT}`)
+  ensureSignedIn(browserUI).then(() => {
+    gate.ready = true
+    console.log(`[oatmeal] signed in with publik (${APP_SLUG} ${APP_VERSION}); the recorder is open`)
+  })
 })
