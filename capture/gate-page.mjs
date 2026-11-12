@@ -25,6 +25,9 @@ export function gatePage() {
     button.primary { background: var(--accent); border-color: var(--accent); color: #fff8ee; }
     button:disabled { opacity: .6; cursor: default; }
     #link { word-break: break-all; font-size: .9rem; }
+    .pitch { margin-top: 1.5rem; padding-top: 1.1rem; border-top: 1px solid var(--line); font-size: .95rem; }
+    .pitch p { margin: 0 0 .5rem; }
+    .pitch .cta { font-weight: 600; }
     a { color: var(--accent); }
   </style>
 </head>
@@ -36,6 +39,10 @@ export function gatePage() {
     <p id="note" hidden></p>
     <div class="row" id="buttons"></div>
     <p id="link" hidden></p>
+    <div class="pitch">
+      <p>Oatmeal is free on <a href="https://publikhq.com" target="_blank" rel="noopener">publik</a>, a free software marketplace. When you use it through publik, its builder earns a small share of the usage, which keeps Oatmeal free. publik's mission: free software for everyone.</p>
+      <a class="cta" href="https://publikhq.com" target="_blank" rel="noopener">Make a free publik account →</a>
+    </div>
   </main>
   <script>
     const $ = (id) => document.getElementById(id)
