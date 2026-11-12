@@ -22,7 +22,8 @@
   ],
   "scripts": {
     "start": "node capture/server.mjs",
-    "mcp": "node scripts/mcp-server.mjs"
+    "mcp": "node scripts/mcp-server.mjs",
+    "test": "node --test tests/"
   },
   "dependencies": {
     "@huggingface/transformers": "^3.8.1",

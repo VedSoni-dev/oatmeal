@@ -11,6 +11,7 @@ Publisher copy and media for [Oatmeal's listing](https://publikhq.com/oatmeal-ve
 - **License:** MIT
 - **Repository:** https://github.com/VedSoni-dev/oatmeal
 - **AI:** Local Whisper transcription. On `main`, notes come from your own coding agent (Claude Code, Cursor, Codex). Publik API, local text models, API keys and subscription runtimes are in the desktop preview only (PR #2).
+- **Sign in with publik + usage counting (on `main`):** the recorder opens with Sign in with publik (publik's module in `capture/publik.mjs`, `USES_AI = false`) and sends `app_opened` / `active_session` with the install key. `PUBLIK_SELF_TEST=1 npm start` → `publik self-test: ok oatmeal-vedsoni-dev 1.0.0` (2026-11-12).
 - **Publik API flag:** should read *not built in yet* until PR #2 merges and a live call is verified. The current listing says "Built in" — that comes from the submitted manifest and needs a re-submit from the owner's Publik account.
 
 ## Description
