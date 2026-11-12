@@ -9,10 +9,11 @@
 //   meetings/2026-07-18-1432-standup.transcript.md   (live, appended during meeting)
 
 import { createServer } from 'node:http'
-import { readFile, writeFile, appendFile, mkdir, readdir } from 'node:fs/promises'
+import { readFile, writeFile, appendFile, mkdir, readdir, rename } from 'node:fs/promises'
 import { existsSync } from 'node:fs'
 import { join, dirname, extname, normalize } from 'node:path'
 import { fileURLToPath } from 'node:url'
+import { slug, quickTitle, finalTitle } from './naming.mjs'
 
 const __dirname = dirname(fileURLToPath(import.meta.url))
 const ROOT = join(__dirname, '..')
@@ -38,8 +39,26 @@ const STATIC = [
 
 const sessions = new Map() // id -> { file, title, startedAt, segments: number }
 
-function slug(s) {
-  return (s || 'meeting').toLowerCase().replace(/[^\w\s-]/g, '').trim().replace(/\s+/g, '-').slice(0, 50) || 'meeting'
+// meetings/<stamp>-<slug>.transcript.md, adding -2, -3… if that name is taken.
+function transcriptPath(startedAt, title, current) {
+  const base = `${stamp(startedAt)}-${slug(title)}`
+  for (let i = 1; ; i++) {
+    const file = join(MEETINGS_DIR, `${base}${i > 1 ? `-${i}` : ''}.transcript.md`)
+    if (file === current || !existsSync(file)) return file
+  }
+}
+
+// Give a finished session a real name: rename the file and fix its heading.
+async function nameSession(s, endedAt) {
+  if (s.titleSource === 'typed' || s.titleSource === 'calendar') return
+  const md = await readFile(s.file, 'utf8')
+  const found = await finalTitle({ startedAt: s.startedAt, endedAt, tab: s.tab, md })
+  if (!found || found.title === s.title) return
+  const file = transcriptPath(s.startedAt, found.title, s.file)
+  await writeFile(s.file, md.replace(/^# .*$/m, `# ${found.title} — transcript`))
+  if (file !== s.file) await rename(s.file, file)
+  console.log(`[oatmeal] named ${file.split('/').pop()} (from ${found.source})`)
+  Object.assign(s, { file, title: found.title, titleSource: found.source })
 }
 
 function stamp(d) {
@@ -66,17 +85,18 @@ const server = createServer(async (req, res) => {
   try {
     // --- API ---
     if (req.method === 'POST' && path === '/api/session/start') {
-      const { title } = await json(req)
+      const { title: typed, tab } = await json(req)
       const now = new Date()
       const id = `${Date.now()}`
-      const file = join(MEETINGS_DIR, `${stamp(now)}-${slug(title)}.transcript.md`)
+      // Name it now if we can (typed title, calendar, tab); otherwise it gets
+      // a real name from the transcript when the session stops.
+      const quick = await quickTitle({ typed, startedAt: now, tab })
+      const title = quick?.title ?? 'Meeting'
       await mkdir(MEETINGS_DIR, { recursive: true })
-      await writeFile(
-        file,
-        `# ${title || 'Meeting'} — transcript\n\n_Started ${now.toLocaleString()}_\n\n`
-      )
-      sessions.set(id, { file, title: title || 'Meeting', startedAt: now, segments: 0 })
-      return send(res, 200, { id, file })
+      const file = transcriptPath(now, title)
+      await writeFile(file, `# ${title} — transcript\n\n_Started ${now.toLocaleString()}_\n\n`)
+      sessions.set(id, { file, title, titleSource: quick?.source ?? null, tab, startedAt: now, segments: 0 })
+      return send(res, 200, { id, file, title })
     }
 
     if (req.method === 'POST' && path === '/api/session/segment') {
@@ -99,9 +119,11 @@ const server = createServer(async (req, res) => {
       const { id } = await json(req)
       const s = sessions.get(id)
       if (!s) return send(res, 404, { error: 'unknown session' })
-      await appendFile(s.file, `\n_Ended ${new Date().toLocaleString()} — ${s.segments} segments_\n`)
+      const endedAt = new Date()
+      await appendFile(s.file, `\n_Ended ${endedAt.toLocaleString()} — ${s.segments} segments_\n`)
       sessions.delete(id)
-      return send(res, 200, { ok: true, file: s.file, segments: s.segments })
+      try { await nameSession(s, endedAt) } catch (e) { console.error('[oatmeal] naming failed:', e.message) }
+      return send(res, 200, { ok: true, file: s.file, title: s.title, segments: s.segments })
     }
 
     if (req.method === 'GET' && path === '/api/meetings') {
