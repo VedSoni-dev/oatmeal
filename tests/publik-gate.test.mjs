@@ -49,6 +49,8 @@ test('the recorder opens only after Sign in with publik, then counts the launch'
   // Before sign-in: every page is the gate, and the recorder's API refuses.
   const page = await (await fetch(`${base}/`)).text()
   assert.match(page, /Sign in with publik/)
+  assert.match(page, /Oatmeal is free on <a [^>]*>publik<\/a>, a free software marketplace\. When you use it through publik, its builder earns a small share of the usage, which keeps Oatmeal free\. publik's mission: free software for everyone\./)
+  assert.match(page, /href="https:\/\/publikhq\.com"[^>]*>Make a free publik account →<\/a>/)
   assert.doesNotMatch(page, /meeting recorder<\/title>/)
   assert.equal((await fetch(`${base}/api/session/start`, { method: 'POST', body: '{}' })).status, 403)
   assert.equal((await fetch(`${base}/api/meetings`)).status, 403)
