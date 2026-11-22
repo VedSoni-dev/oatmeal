@@ -1,6 +1,6 @@
 {
   "name": "oatmeal",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Your coding agent is your meeting notetaker. Local Whisper transcription, agent-written notes, git as the team knowledge base. No cloud, no keys, no bots.",
   "author": "Vedant Soni",
   "license": "MIT",

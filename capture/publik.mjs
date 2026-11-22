@@ -13,7 +13,7 @@ import { dirname, join } from "node:path";
 import { createInterface } from "node:readline/promises";
 import { fileURLToPath } from "node:url";
 export const APP_SLUG = "oatmeal-vedsoni-dev";
-export const APP_VERSION = "1.0.0";
+export const APP_VERSION = "1.0.1";
 /** false: the app calls no model. It still signs in and counts users; it skips the plan screen. */
 export const USES_AI = false;
 const ORIGIN = process.env.PUBLIK_ORIGIN || "https://publikhq.com"; // PUBLIK_ORIGIN: tests only
